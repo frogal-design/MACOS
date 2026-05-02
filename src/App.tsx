@@ -61,23 +61,29 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
             {[
-              { name: 'DOCS', path: '/about' },
+              { name: 'ABOUT', path: '/about' },
               { name: 'PORTAL', path: '/students' },
-              { name: 'GITHUB', path: '#' },
-              { name: 'DISCORD', path: '#' },
+              { name: 'CHRONICLE', path: '/events' },
               { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => (
-              <Link 
-                key={link.name}
-                to={link.path}
-                className="flex-1 flex items-center justify-center border-r border-border font-serif text-[13px] tracking-[0.2em] hover:bg-bg-light hover:text-accent transition-all duration-300 group relative overflow-hidden"
-              >
-                <span className="relative z-10">{link.name}</span>
-                <motion.div 
-                  className="absolute inset-x-0 bottom-0 h-[2px] bg-accent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" 
-                />
-              </Link>
-            ))}
+            ].map((link) => {
+              const isActive = location.pathname === link.path;
+              return (
+                <Link 
+                  key={link.name}
+                  to={link.path}
+                  className={`flex-1 flex items-center justify-center border-r border-border font-serif text-[13px] tracking-[0.2em] hover:bg-bg-light transition-all duration-300 group relative overflow-hidden ${
+                    isActive ? 'text-accent' : 'text-text-main hover:text-accent'
+                  }`}
+                >
+                  <span className="relative z-10">{link.name}</span>
+                  <motion.div 
+                    initial={false}
+                    animate={{ y: isActive ? 0 : '100%' }}
+                    className="absolute inset-x-0 bottom-0 h-[2px] bg-accent transition-transform duration-300 group-hover:translate-y-0" 
+                  />
+                </Link>
+              );
+            })}
 
             {/* End Actions / Theme Placeholder */}
             <div className="flex items-center px-8 gap-8 border-r border-border min-w-[200px] justify-between">
