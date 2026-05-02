@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --color-primary: #DA2627;
+  --color-accent: #DA2627;
+  --color-bg: #0A1412;
+  --color-bg-light: #0D1A18;
+  --color-text-main: #FDF8E1;
+  --color-text-muted: #A1A1AA;
+  --color-border: #1F2E2B;
+}
+
+@layer base {
+  body {
+    @apply bg-bg text-text-main font-sans transition-colors duration-500;
+  }
+}
+
+.hermes-grid {
+  background-image: linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
