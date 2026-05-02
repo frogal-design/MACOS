@@ -27,31 +27,34 @@ import Students from './pages/Students';
 import Events from './pages/Events';
 import Gallery from './pages/Gallery';
 
+import { MobileDock } from './components/MobileDock';
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo(0, 0);
-    setIsMenuOpen(false);
   }, [location]);
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* Mobile Dock Navigation */}
+      <MobileDock />
+
       {/* Header / Navbar */}
       <nav className="sticky top-0 z-50 bg-bg/95 backdrop-blur-xl border-b border-border">
         <div className="flex w-full h-24">
           {/* Logo Section */}
-          <Link to="/" className="flex items-center px-8 border-r border-border group min-w-[280px]">
+          <Link to="/" className="flex items-center px-4 md:px-8 border-r border-border group min-w-0 md:min-w-[280px]">
             <img 
               src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/logo.png" 
               alt="MACOS" 
-              className="h-10 w-10 object-contain mr-4 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
+              className="h-8 md:h-10 w-8 md:w-10 object-contain mr-3 md:mr-4 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
             />
             <div className="font-serif">
-              <div className="text-2xl leading-none tracking-tighter uppercase font-medium">MAKERERE</div>
-              <div className="text-xl leading-none tracking-tighter uppercase font-light italic text-accent opacity-80 mt-1">COLLEGE.</div>
+              <div className="text-lg md:text-2xl leading-none tracking-tighter uppercase font-medium">MAKERERE</div>
+              <div className="text-base md:text-xl leading-none tracking-tighter uppercase font-light italic text-accent opacity-80 mt-1">COLLEGE.</div>
             </div>
           </Link>
 
@@ -89,35 +92,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
 
-          {/* Mobile Toggle */}
-          <button className="lg:hidden ml-auto px-8 flex items-center text-text-main" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Spacer for mobile layout since dock is floating */}
+          <div className="flex-grow lg:hidden" />
         </div>
-
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="lg:hidden fixed inset-0 top-24 bg-bg z-40 p-6 flex flex-col gap-8 font-serif"
-            >
-              {[
-                { name: 'HOME', path: '/' },
-                { name: 'ABOUT', path: '/about' },
-                { name: 'GALLERY', path: '/gallery' },
-                { name: 'STUDENTS', path: '/students' },
-                { name: 'EVENTS', path: '/events' }
-              ].map((link) => (
-                <Link key={link.name} to={link.path} className="text-5xl border-b border-border pb-6 hover:italic hover:text-accent">
-                  {link.name}
-                </Link>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </nav>
 
       {/* Main Content */}
