@@ -40,47 +40,57 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header / Navbar */}
-      <nav className="sticky top-0 z-50 bg-bg/80 backdrop-blur-xl border-b border-border">
-        <div className="container mx-auto px-6 h-24 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-4 group">
+      <nav className="sticky top-0 z-50 bg-bg/95 backdrop-blur-xl border-b border-border">
+        <div className="flex w-full h-24">
+          {/* Logo Section */}
+          <Link to="/" className="flex items-center px-8 border-r border-border group min-w-[280px]">
             <img 
               src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/logo.png" 
               alt="MACOS" 
-              className="h-12 w-12 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+              className="h-10 w-10 object-contain mr-4 grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
             />
-            <div className="font-serif tracking-tighter">
-              <div className="text-xl leading-none">MACOS</div>
-              <div className="text-[8px] font-mono tracking-[0.4em] text-text-muted mt-1">MT. KAMPALA</div>
+            <div className="font-serif">
+              <div className="text-2xl leading-none tracking-tighter uppercase font-medium">MAKERERE</div>
+              <div className="text-xl leading-none tracking-tighter uppercase font-light italic text-accent opacity-80 mt-1">COLLEGE.</div>
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center border-l border-border h-full">
+          {/* Desktop Nav Grid */}
+          <div className="hidden lg:flex flex-grow">
             {[
               { name: 'DOCS', path: '/about' },
-              { name: 'GALLERY', path: '/gallery' },
               { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'CONTACT', path: '/contact' }
+              { name: 'GITHUB', path: '#' },
+              { name: 'DISCORD', path: '#' },
+              { name: 'GALLERY', path: '/gallery' }
             ].map((link) => (
               <Link 
                 key={link.name}
                 to={link.path}
-                className="h-full px-12 flex items-center border-r border-border font-mono text-[10px] tracking-[0.3em] hover:bg-bg-light hover:text-accent transition-all"
+                className="flex-1 flex items-center justify-center border-r border-border font-serif text-[13px] tracking-[0.2em] hover:bg-bg-light hover:text-accent transition-all duration-300 group relative overflow-hidden"
               >
-                {link.name}
+                <span className="relative z-10">{link.name}</span>
+                <motion.div 
+                  className="absolute inset-x-0 bottom-0 h-[2px] bg-accent transform translate-y-full group-hover:translate-y-0 transition-transform duration-300" 
+                />
               </Link>
             ))}
-            <div className="px-12 flex items-center gap-6">
-              <Search size={16} className="text-text-muted hover:text-text-main cursor-pointer" />
-              <button className="font-mono text-[10px] tracking-widest text-accent border border-accent/30 px-6 py-2 hover:bg-accent hover:text-text-main transition-all">
-                LOGIN
-              </button>
+
+            {/* End Actions / Theme Placeholder */}
+            <div className="flex items-center px-8 gap-8 border-r border-border min-w-[200px] justify-between">
+              <span className="font-serif text-[11px] tracking-[0.3em] opacity-40 uppercase">THEME</span>
+              <div className="w-12 h-6 border border-border rounded-full flex items-center p-1 bg-bg-light">
+                <div className="w-4 h-4 bg-text-main rounded-full" />
+              </div>
+            </div>
+            
+            <div className="flex items-center px-8 cursor-pointer hover:bg-bg-light transition-colors">
+              <Search size={18} className="text-text-muted opacity-50" />
             </div>
           </div>
 
-          {/* Mobile Menu Toggle */}
-          <button className="lg:hidden text-text-main" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {/* Mobile Toggle */}
+          <button className="lg:hidden ml-auto px-8 flex items-center text-text-main" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>

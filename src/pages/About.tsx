@@ -24,8 +24,6 @@ const About = () => {
                 text="BEYOND THE" 
                 animateOn="view" 
                 revealDirection="center"
-                speed={100}
-                maxIterations={20}
               /> 
               <br/> 
               <span className="italic text-accent">
@@ -33,8 +31,6 @@ const About = () => {
                   text="CAMPUS." 
                   animateOn="view" 
                   revealDirection="center"
-                  speed={100}
-                  maxIterations={20}
                 />
               </span>
             </h1>
@@ -51,8 +47,7 @@ const About = () => {
         <div className="p-20 border-r border-border">
           <div className="font-mono text-xs tracking-widest text-accent mb-12 uppercase italic">School Overview</div>
           <h2 className="text-4xl font-serif mb-10 leading-tight tracking-tight uppercase">
-            <DecryptedText text="A Legacy Founded by" animateOn="view" speed={100} /> <br/> 
-            <span className="italic"><DecryptedText text="London University." animateOn="view" speed={100} /></span>
+            A Legacy Founded by <br/> <span className="italic">London University.</span>
           </h2>
           <div className="space-y-8 text-lg font-light text-text-muted leading-relaxed">
             <p>
@@ -110,9 +105,7 @@ const About = () => {
       <section className="py-32 border-b border-border hermes-grid">
         <div className="container mx-auto px-6 text-center">
             <div className="font-mono text-xs tracking-[.4em] text-accent mb-8 uppercase italic">Academics</div>
-            <h2 className="text-6xl md:text-8xl font-serif mb-12 tracking-tighter uppercase">
-              <DecryptedText text="SCHOOL" animateOn="view" speed={100} /> <span className="italic"><DecryptedText text="CURRICULUM." animateOn="view" speed={100} /></span>
-            </h2>
+            <h2 className="text-6xl md:text-8xl font-serif mb-12 tracking-tighter">SCHOOL <span className="italic">CURRICULUM.</span></h2>
             <div className="max-w-2xl mx-auto text-xl text-text-muted font-light leading-relaxed mb-16">
               We strive to enhance learning opportunities for all children by recognizing each child’s unique individuality, 
               academic, social and cultural strengths.

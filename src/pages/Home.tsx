@@ -16,73 +16,65 @@ const Home = () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center border-b border-border hermes-grid">
-        <div className="container mx-auto px-6 py-20 relative z-10">
+      <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border hermes-grid overflow-hidden">
+        <div className="container mx-auto px-6 relative z-10 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="flex flex-col items-center"
           >
-            <div className="flex items-center gap-2 mb-8 uppercase font-mono text-xs tracking-[0.3em] text-accent">
-              <span className="w-8 h-[1px] bg-accent"></span>
-              ESTABLISHED 1945 • MAKERE UNIVERSITY
+            <div className="mb-12 font-serif text-[11px] tracking-[0.6em] text-accent uppercase font-medium">
+              ESTABLISHED 1945 • MAKERERE HILL ROAD • KAMPALA
             </div>
             
-            <h1 className="text-7xl md:text-9xl font-serif leading-[0.9] mb-12 tracking-tighter">
-              <DecryptedText 
-                text="BE KNOWN" 
-                animateOn="view" 
-                revealDirection="center"
-                speed={100}
-                maxIterations={20}
-              /> 
-              <br/> 
-              <DecryptedText 
-                text="BY " 
-                animateOn="view" 
-                revealDirection="center"
-                speed={100}
-                maxIterations={20}
-              />
-              <span className="text-accent italic">
+            <h1 className="text-[12vw] md:text-[10vw] font-serif leading-[0.85] mb-12 tracking-[-0.04em] uppercase">
+              <span className="block">
                 <DecryptedText 
-                  text="WORKS." 
+                  text="BE KNOWN" 
                   animateOn="view" 
                   revealDirection="center"
-                  speed={100}
-                  maxIterations={20}
+                  className="font-medium"
+                /> 
+              </span>
+              <span className="block mt-4 italic font-light lowercase">
+                <DecryptedText 
+                  text="BY WORKS." 
+                  animateOn="view" 
+                  revealDirection="center"
+                  className="text-accent"
                 />
               </span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-text-muted max-w-2xl mb-12 font-light leading-relaxed">
-              MACOS is more than a school; it's a legacy of excellence on Makerere Hill. 
-              We nurture the next generation of innovative leaders through academic rigor and moral integrity.
+            <p className="text-xl md:text-2xl text-text-muted max-w-2xl mb-20 font-light leading-relaxed italic opacity-80">
+              Makerere College School is a community of excellence, innovation, and character building on Makerere Hill. 
+              An autonomous institution that lives by its values, and gets more capable the longer it runs.
             </p>
             
-            <div className="flex flex-wrap gap-8 items-center font-mono text-sm tracking-widest">
-              <Link to="/gallery" className="bg-text-main text-bg px-10 py-5 hover:bg-accent hover:text-text-main transition-colors duration-300">
-                EXPLORE CAMPUS
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border border-border w-full max-w-2xl overflow-hidden group">
+              <Link to="/gallery" className="p-8 border-r border-border hover:bg-accent hover:text-text-main transition-all duration-500 flex flex-col gap-4 text-left">
+                <span className="font-mono text-[10px] tracking-[0.4em] opacity-40">01. EXPLORE</span>
+                <span className="font-serif text-2xl uppercase italic tracking-tighter">Campus Gallery</span>
               </Link>
-              <Link to="/about" className="flex items-center gap-3 border-b border-text-main py-2 hover:text-accent hover:border-accent transition-colors">
-                VIEW CURRICULUM <ArrowRight size={16} />
+              <Link to="/about" className="p-8 hover:bg-bg-light transition-all duration-500 flex flex-col gap-4 text-left">
+                <span className="font-mono text-[10px] tracking-[0.4em] opacity-40">02. LEARN</span>
+                <span className="font-serif text-2xl uppercase italic tracking-tighter">Our Curriculum</span>
               </Link>
+            </div>
+
+            <div className="mt-16 font-serif text-[10px] tracking-[0.5em] opacity-30 uppercase">
+              REQUIRES COMMITMENT • SINCE 1945
             </div>
           </motion.div>
         </div>
         
-        {/* Background Visual */}
-        <div className="absolute top-0 right-0 w-1/3 h-full border-l border-border hidden lg:block opacity-20">
-          <ShapeGrid 
-            speed={0.2} 
-            squareSize={60} 
-            direction="diagonal" 
-            borderColor="#1F2E2B" 
-            hoverFillColor="#DA2627" 
-            shape="hexagon" 
-            hoverTrailAmount={5} 
-          />
+        {/* Background Grid - Hermes specific */}
+        <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-border flex pointer-events-none">
+          <div className="flex-1 border-r border-border" />
+          <div className="flex-1 border-r border-border" />
+          <div className="flex-1 border-r border-border" />
+          <div className="flex-1" />
         </div>
       </section>
 
@@ -117,9 +109,8 @@ const Home = () => {
           
           <div>
             <div className="font-mono text-xs tracking-widest text-accent mb-8 uppercase italic">Leadership Statement</div>
-            <h2 className="text-5xl md:text-6xl font-serif mb-10 tracking-tight leading-tight uppercase">
-              <DecryptedText text="We strive for unity and" animateOn="view" speed={100} maxIterations={20} /> <br/>
-              <span className="italic"><DecryptedText text="teamwork" animateOn="view" speed={100} maxIterations={20} /></span>
+            <h2 className="text-5xl md:text-6xl font-serif mb-10 tracking-tight leading-tight">
+              "We strive for unity and <span className="italic">teamwork</span>, as two are always better than one."
             </h2>
             <p className="text-lg text-text-muted mb-12 font-light leading-relaxed italic border-l border-border pl-8">
               Welcome to Makerere College School. Our theme for 2025 is “Inspiring Team Commitment.” 
@@ -138,9 +129,7 @@ const Home = () => {
         <div className="container mx-auto px-6 mb-20 flex justify-between items-end">
           <div>
             <div className="font-mono text-xs tracking-[.4em] text-accent mb-4 uppercase">Archive</div>
-            <h2 className="text-5xl font-serif leading-tight uppercase">
-              <DecryptedText text="News &" animateOn="view" speed={100} /> <span className="italic"><DecryptedText text="Activity" animateOn="view" speed={100} /></span>
-            </h2>
+            <h2 className="text-5xl font-serif leading-tight">News & <span className="italic">Activity</span></h2>
           </div>
           <Link to="/gallery" className="font-mono text-xs tracking-widest uppercase border-b border-text-muted pb-2 hover:text-accent hover:border-accent transition-all">
             View All

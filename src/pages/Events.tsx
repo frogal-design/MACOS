@@ -30,8 +30,6 @@ const Events = () => {
               text="CHRONICLE" 
               animateOn="view" 
               revealDirection="center"
-              speed={100}
-              maxIterations={20}
             /> 
             <br/> 
             <span className="italic text-accent">
@@ -39,8 +37,6 @@ const Events = () => {
                 text="EVENTS." 
                 animateOn="view" 
                 revealDirection="center"
-                speed={100}
-                maxIterations={20}
               />
             </span>
           </h1>
@@ -65,9 +61,7 @@ const Events = () => {
       <section className="py-32 border-b border-border hermes-grid">
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-24">
            <div className="space-y-12">
-              <h2 className="text-6xl font-serif mb-12 tracking-tighter uppercase">
-                <DecryptedText text="Academic" animateOn="view" speed={100} /> <span className="italic text-accent"><DecryptedText text="Calendar" animateOn="view" speed={100} /></span>
-              </h2>
+              <h2 className="text-6xl font-serif mb-12 tracking-tighter uppercase">Academic <span className="italic text-accent">Calendar</span></h2>
               {calendar.map((event) => (
                 <div key={event.title} className="flex gap-10 items-start group">
                    <div className="w-16 flex flex-col items-center">

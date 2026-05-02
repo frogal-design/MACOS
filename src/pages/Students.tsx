@@ -33,8 +33,6 @@ const Students = () => {
                 text="LIFE AT" 
                 animateOn="view" 
                 revealDirection="center"
-                speed={100}
-                maxIterations={20}
               /> 
               <br/> 
               <span className="italic text-accent">
@@ -42,8 +40,6 @@ const Students = () => {
                   text="MACOS." 
                   animateOn="view" 
                   revealDirection="center"
-                  speed={100}
-                  maxIterations={20}
                 />
               </span>
             </h1>
@@ -81,10 +77,7 @@ const Students = () => {
           <div className="flex flex-col lg:flex-row gap-24 items-center">
             <div className="lg:w-1/2">
                <div className="font-mono text-xs tracking-[.4em] text-accent mb-8 uppercase italic">Exploration</div>
-               <h2 className="text-5xl md:text-7xl font-serif mb-10 tracking-tighter uppercase">
-                 <DecryptedText text="TOURS AND" animateOn="view" speed={100} /> <br/>
-                 <span className="italic"><DecryptedText text="TRIPS." animateOn="view" speed={100} /></span>
-               </h2>
+               <h2 className="text-5xl md:text-7xl font-serif mb-10 tracking-tighter">TOURS AND <br/><span className="italic">TRIPS.</span></h2>
                <p className="text-xl text-text-muted font-light leading-relaxed mb-12">
                  From Physics trips to Nalubaale Hydro Electricity Dam to cultural exchanges across the region, 
                  we ensure our students see the world they are learning to lead.
