@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, Users, Trophy, Music, Palette, Tent, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import DecryptedText from '../components/DecryptedText';
 
 const Students = () => {
   const navigate = useNavigate();
@@ -28,7 +29,23 @@ const Students = () => {
           </button>
           <div className="max-w-4xl">
             <h1 className="text-7xl md:text-9xl font-serif leading-[0.9] mb-12 tracking-tighter">
-              LIFE AT <br/> <span className="italic text-accent">MACOS.</span>
+              <DecryptedText 
+                text="LIFE AT" 
+                animateOn="view" 
+                revealDirection="center"
+                speed={100}
+                maxIterations={20}
+              /> 
+              <br/> 
+              <span className="italic text-accent">
+                <DecryptedText 
+                  text="MACOS." 
+                  animateOn="view" 
+                  revealDirection="center"
+                  speed={100}
+                  maxIterations={20}
+                />
+              </span>
             </h1>
             <p className="text-xl md:text-2xl text-text-muted font-light leading-relaxed max-w-2xl">
               Education at Makerere College School extends far beyond the classroom. 
@@ -64,7 +81,10 @@ const Students = () => {
           <div className="flex flex-col lg:flex-row gap-24 items-center">
             <div className="lg:w-1/2">
                <div className="font-mono text-xs tracking-[.4em] text-accent mb-8 uppercase italic">Exploration</div>
-               <h2 className="text-5xl md:text-7xl font-serif mb-10 tracking-tighter">TOURS AND <br/><span className="italic">TRIPS.</span></h2>
+               <h2 className="text-5xl md:text-7xl font-serif mb-10 tracking-tighter uppercase">
+                 <DecryptedText text="TOURS AND" animateOn="view" speed={100} /> <br/>
+                 <span className="italic"><DecryptedText text="TRIPS." animateOn="view" speed={100} /></span>
+               </h2>
                <p className="text-xl text-text-muted font-light leading-relaxed mb-12">
                  From Physics trips to Nalubaale Hydro Electricity Dam to cultural exchanges across the region, 
                  we ensure our students see the world they are learning to lead.

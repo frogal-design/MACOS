@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, BookOpen, Users, Trophy, GraduationCap, Clock } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, Trophy, GraduationCap } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import ShapeGrid from '../components/ShapeGrid';
+import DecryptedText from '../components/DecryptedText';
 
 const Home = () => {
   const stats = [
@@ -28,7 +30,30 @@ const Home = () => {
             </div>
             
             <h1 className="text-7xl md:text-9xl font-serif leading-[0.9] mb-12 tracking-tighter">
-              BE KNOWN <br/> BY <span className="text-accent italic">WORKS.</span>
+              <DecryptedText 
+                text="BE KNOWN" 
+                animateOn="view" 
+                revealDirection="center"
+                speed={100}
+                maxIterations={20}
+              /> 
+              <br/> 
+              <DecryptedText 
+                text="BY " 
+                animateOn="view" 
+                revealDirection="center"
+                speed={100}
+                maxIterations={20}
+              />
+              <span className="text-accent italic">
+                <DecryptedText 
+                  text="WORKS." 
+                  animateOn="view" 
+                  revealDirection="center"
+                  speed={100}
+                  maxIterations={20}
+                />
+              </span>
             </h1>
             
             <p className="text-xl md:text-2xl text-text-muted max-w-2xl mb-12 font-light leading-relaxed">
@@ -37,12 +62,12 @@ const Home = () => {
             </p>
             
             <div className="flex flex-wrap gap-8 items-center font-mono text-sm tracking-widest">
-              <button className="bg-text-main text-bg px-10 py-5 hover:bg-accent hover:text-text-main transition-colors duration-300">
+              <Link to="/gallery" className="bg-text-main text-bg px-10 py-5 hover:bg-accent hover:text-text-main transition-colors duration-300">
                 EXPLORE CAMPUS
-              </button>
-              <button className="flex items-center gap-3 border-b border-text-main py-2 hover:text-accent hover:border-accent transition-colors">
+              </Link>
+              <Link to="/about" className="flex items-center gap-3 border-b border-text-main py-2 hover:text-accent hover:border-accent transition-colors">
                 VIEW CURRICULUM <ArrowRight size={16} />
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>
@@ -92,8 +117,9 @@ const Home = () => {
           
           <div>
             <div className="font-mono text-xs tracking-widest text-accent mb-8 uppercase italic">Leadership Statement</div>
-            <h2 className="text-5xl md:text-6xl font-serif mb-10 tracking-tight leading-tight">
-              "We strive for unity and <span className="italic">teamwork</span>, as two are always better than one."
+            <h2 className="text-5xl md:text-6xl font-serif mb-10 tracking-tight leading-tight uppercase">
+              <DecryptedText text="We strive for unity and" animateOn="view" speed={100} maxIterations={20} /> <br/>
+              <span className="italic"><DecryptedText text="teamwork" animateOn="view" speed={100} maxIterations={20} /></span>
             </h2>
             <p className="text-lg text-text-muted mb-12 font-light leading-relaxed italic border-l border-border pl-8">
               Welcome to Makerere College School. Our theme for 2025 is “Inspiring Team Commitment.” 
@@ -112,11 +138,13 @@ const Home = () => {
         <div className="container mx-auto px-6 mb-20 flex justify-between items-end">
           <div>
             <div className="font-mono text-xs tracking-[.4em] text-accent mb-4 uppercase">Archive</div>
-            <h2 className="text-5xl font-serif leading-tight">News & <span className="italic">Activity</span></h2>
+            <h2 className="text-5xl font-serif leading-tight uppercase">
+              <DecryptedText text="News &" animateOn="view" speed={100} /> <span className="italic"><DecryptedText text="Activity" animateOn="view" speed={100} /></span>
+            </h2>
           </div>
-          <button className="font-mono text-xs tracking-widest uppercase border-b border-text-muted pb-2 hover:text-accent hover:border-accent transition-all">
+          <Link to="/gallery" className="font-mono text-xs tracking-widest uppercase border-b border-text-muted pb-2 hover:text-accent hover:border-accent transition-all">
             View All
-          </button>
+          </Link>
         </div>
         
         <div className="container mx-auto px-6 grid md:grid-cols-3 gap-0 border border-border">

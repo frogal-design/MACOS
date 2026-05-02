@@ -25,6 +25,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Students from './pages/Students';
 import Events from './pages/Events';
+import Gallery from './pages/Gallery';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,9 +44,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container mx-auto px-6 h-24 flex justify-between items-center">
           <Link to="/" className="flex items-center gap-4 group">
             <img 
-              src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/circled-macos-logo.png" 
+              src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/logo.png" 
               alt="MACOS" 
-              className="h-12 w-12 object-contain brightness-0 invert opacity-80 group-hover:opacity-100 transition-opacity"
+              className="h-12 w-12 object-contain opacity-90 group-hover:opacity-100 transition-opacity"
             />
             <div className="font-serif tracking-tighter">
               <div className="text-xl leading-none">MACOS</div>
@@ -57,6 +58,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <div className="hidden lg:flex items-center border-l border-border h-full">
             {[
               { name: 'DOCS', path: '/about' },
+              { name: 'GALLERY', path: '/gallery' },
               { name: 'PORTAL', path: '/students' },
               { name: 'CHRONICLE', path: '/events' },
               { name: 'CONTACT', path: '/contact' }
@@ -95,6 +97,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {[
                 { name: 'HOME', path: '/' },
                 { name: 'ABOUT', path: '/about' },
+                { name: 'GALLERY', path: '/gallery' },
                 { name: 'STUDENTS', path: '/students' },
                 { name: 'EVENTS', path: '/events' }
               ].map((link) => (
@@ -117,7 +120,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-3 gap-24 mb-32">
             <div>
-              <div className="font-serif text-3xl mb-8 uppercase tracking-tighter italic">MACOS.</div>
+              <div className="flex items-center gap-4 mb-8">
+                <img src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/logo.png" alt="MACOS" className="h-10 w-10 object-contain" />
+                <div className="font-serif text-3xl uppercase tracking-tighter italic">MACOS.</div>
+              </div>
               <p className="text-text-muted font-light leading-relaxed mb-10 max-w-sm italic">
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
@@ -132,6 +138,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Directory</div>
                 <Link to="/about" className="block hover:text-accent transition-colors">Overview</Link>
+                <Link to="/gallery" className="block hover:text-accent transition-colors">Gallery</Link>
                 <Link to="/students" className="block hover:text-accent transition-colors">Clubs</Link>
                 <Link to="/events" className="block hover:text-accent transition-colors">Archives</Link>
               </div>
@@ -176,6 +183,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/students" element={<Students />} />
           <Route path="/events" element={<Events />} />
           {/* Fallback */}
