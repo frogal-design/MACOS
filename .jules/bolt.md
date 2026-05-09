@@ -1,0 +1,3 @@
+## 2026-05-09 - [Path Batching vs State Changes]
+**Learning:** When batching Canvas paths to improve performance, any call to `ctx.beginPath()` inside the loop will clear the accumulated path. This is especially dangerous when mixing batched strokes with individual fills that require their own path state (like hovered cells).
+**Action:** Always separate batched path construction into a dedicated pass, or carefully use `ctx.save()`/`ctx.restore()` while ensuring the main path is not cleared by nested `beginPath()` calls. For complex components, rendering filled/hovered items in a separate loop BEFORE or AFTER the main grid pass is the cleanest approach.
