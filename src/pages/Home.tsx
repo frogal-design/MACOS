@@ -68,6 +68,17 @@ const Home = () => {
             </div>
           </motion.div>
         </div>
+
+        <div className="absolute inset-0 z-0 opacity-20">
+          <ShapeGrid
+            shape="hexagon"
+            squareSize={30}
+            speed={0.5}
+            borderColor="#DA2627"
+            hoverFillColor="#DA2627"
+            hoverTrailAmount={10}
+          />
+        </div>
         
         {/* Background Grid - Hermes specific */}
         <div className="absolute inset-x-0 bottom-0 h-[100px] border-t border-border flex pointer-events-none">
