@@ -17,6 +17,16 @@ const Home = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border hermes-grid overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <ShapeGrid
+            squareSize={40}
+            borderColor="#1F2E2B"
+            hoverFillColor="#DA2627"
+            hoverTrailAmount={10}
+            speed={0.5}
+            direction="diagonal"
+          />
+        </div>
         <div className="container mx-auto px-6 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -101,8 +111,9 @@ const Home = () => {
               <img 
                 src="https://makererecollege.sc.ug/wp-content/uploads/2025/05/headteacher.png" 
                 alt="Headteacher"
-                className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
-              />
+              loading="lazy"
+              className="w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+            />
             </div>
             <div className="absolute -bottom-10 -right-10 w-48 h-48 border border-border -z-10 group-hover:translate-x-5 transition-transform duration-500"></div>
           </div>
@@ -145,7 +156,12 @@ const Home = () => {
             <div key={i} className="p-12 border-r border-border last:border-r-0 group hover:bg-bg transition-all flex flex-col gap-10">
               <div className="font-mono text-xs text-text-muted group-hover:text-accent transition-colors">{item.tag}</div>
               <div className="aspect-square overflow-hidden border border-border grayscale hover:grayscale-0 transition-all duration-500">
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
               </div>
               <div>
                 <h4 className="text-2xl font-serif mb-4 uppercase tracking-tighter group-hover:italic">{item.title}</h4>
