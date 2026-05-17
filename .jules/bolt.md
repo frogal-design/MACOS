@@ -1,0 +1,3 @@
+## 2025-05-14 - [ShapeGrid Optimization & Integration]
+**Learning:** Canvas rendering performance can be dramatically improved by batching draw calls. Replacing individual `strokeRect` or `beginPath/stroke` calls within loops with a single path construction and one final `stroke` call reduces draw calls from O(N*M) to O(1). Additionally, using numeric keys in Maps for grid-based state avoids string allocation overhead in high-frequency animation loops.
+**Action:** Always batch canvas operations and use bitwise-shifted integers for coordinate-based Map keys in performance-critical rendering paths.
