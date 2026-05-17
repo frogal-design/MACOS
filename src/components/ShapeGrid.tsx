@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, memo } from 'react';
 import './ShapeGrid.css';
 
 interface GridCell {
@@ -34,7 +34,8 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
   const gridOffset = useRef({ x: 0, y: 0 });
   const hoveredSquare = useRef<GridCell | null>(null);
   const trailCells = useRef<GridCell[]>([]);
-  const cellOpacities = useRef<Map<string, number>>(new Map());
+  const cellOpacities = useRef<Map<number, number>>(new Map());
+  const cachedGradient = useRef<CanvasGradient | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,50 +48,73 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
 
+    // Precompute vertex offsets to avoid redundant Math.cos/sin in the loop
+    const hexOffsets = Array.from({ length: 6 }, (_, i) => {
+      const angle = (Math.PI / 3) * i;
+      return { x: squareSize * Math.cos(angle), y: squareSize * Math.sin(angle) };
+    });
+
+    const triOffsets = {
+      normal: [
+        { x: 0, y: -squareSize / 2 },
+        { x: squareSize / 2, y: squareSize / 2 },
+        { x: -squareSize / 2, y: squareSize / 2 }
+      ],
+      flipped: [
+        { x: 0, y: squareSize / 2 },
+        { x: squareSize / 2, y: -squareSize / 2 },
+        { x: -squareSize / 2, y: -squareSize / 2 }
+      ]
+    };
+
     const resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      // Cache gradient on resize to avoid per-frame creation
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+      );
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      cachedGradient.current = gradient;
     };
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    const drawHex = (cx: number, cy: number, size: number) => {
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i;
-        const vx = cx + size * Math.cos(angle);
-        const vy = cy + size * Math.sin(angle);
-        if (i === 0) ctx.moveTo(vx, vy);
-        else ctx.lineTo(vx, vy);
+    const getCellKey = (col: number, row: number) => (col << 16) | (row & 0xffff);
+
+    const pathHex = (cx: number, cy: number) => {
+      ctx.moveTo(cx + hexOffsets[0].x, cy + hexOffsets[0].y);
+      for (let i = 1; i < 6; i++) {
+        ctx.lineTo(cx + hexOffsets[i].x, cy + hexOffsets[i].y);
       }
       ctx.closePath();
     };
 
-    const drawCircle = (cx: number, cy: number, size: number) => {
-      ctx.beginPath();
+    const pathCircle = (cx: number, cy: number, size: number) => {
+      ctx.moveTo(cx + size / 2, cy);
       ctx.arc(cx, cy, size / 2, 0, Math.PI * 2);
-      ctx.closePath();
     };
 
-    const drawTriangle = (cx: number, cy: number, size: number, flip: boolean) => {
-      ctx.beginPath();
-      if (flip) {
-        ctx.moveTo(cx, cy + size / 2);
-        ctx.lineTo(cx + size / 2, cy - size / 2);
-        ctx.lineTo(cx - size / 2, cy - size / 2);
-      } else {
-        ctx.moveTo(cx, cy - size / 2);
-        ctx.lineTo(cx + size / 2, cy + size / 2);
-        ctx.lineTo(cx - size / 2, cy + size / 2);
-      }
+    const pathTriangle = (cx: number, cy: number, flip: boolean) => {
+      const offsets = flip ? triOffsets.flipped : triOffsets.normal;
+      ctx.moveTo(cx + offsets[0].x, cy + offsets[0].y);
+      ctx.lineTo(cx + offsets[1].x, cy + offsets[1].y);
+      ctx.lineTo(cx + offsets[2].x, cy + offsets[2].y);
       ctx.closePath();
     };
 
     const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = borderColor;
 
       if (isHex) {
         const colShift = Math.floor(gridOffset.current.x / hexHoriz);
@@ -100,26 +124,26 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         const cols = Math.ceil(canvas.width / hexHoriz) + 3;
         const rows = Math.ceil(canvas.height / hexVert) + 3;
 
+        ctx.beginPath();
         for (let col = -2; col < cols; col++) {
           for (let row = -2; row < rows; row++) {
             const cx = col * hexHoriz + offsetX;
             const cy = row * hexVert + ((col + colShift) % 2 !== 0 ? hexVert / 2 : 0) + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
+            const alpha = cellOpacities.current.get(getCellKey(col, row));
             if (alpha) {
+              ctx.save();
               ctx.globalAlpha = alpha;
-              drawHex(cx, cy, squareSize);
+              ctx.beginPath();
+              pathHex(cx, cy);
               ctx.fillStyle = hoverFillColor;
               ctx.fill();
-              ctx.globalAlpha = 1;
+              ctx.restore();
             }
-
-            drawHex(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
-            ctx.stroke();
+            pathHex(cx, cy);
           }
         }
+        ctx.stroke();
       } else if (isTri) {
         const halfW = squareSize / 2;
         const colShift = Math.floor(gridOffset.current.x / halfW);
@@ -130,27 +154,27 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         const cols = Math.ceil(canvas.width / halfW) + 4;
         const rows = Math.ceil(canvas.height / squareSize) + 4;
 
+        ctx.beginPath();
         for (let col = -2; col < cols; col++) {
           for (let row = -2; row < rows; row++) {
             const cx = col * halfW + offsetX;
             const cy = row * squareSize + squareSize / 2 + offsetY;
             const flip = ((col + colShift + row + rowShift) % 2 + 2) % 2 !== 0;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
+            const alpha = cellOpacities.current.get(getCellKey(col, row));
             if (alpha) {
+              ctx.save();
               ctx.globalAlpha = alpha;
-              drawTriangle(cx, cy, squareSize, flip);
+              ctx.beginPath();
+              pathTriangle(cx, cy, flip);
               ctx.fillStyle = hoverFillColor;
               ctx.fill();
-              ctx.globalAlpha = 1;
+              ctx.restore();
             }
-
-            drawTriangle(cx, cy, squareSize, flip);
-            ctx.strokeStyle = borderColor;
-            ctx.stroke();
+            pathTriangle(cx, cy, flip);
           }
         }
+        ctx.stroke();
       } else if (shape === 'circle') {
         const offsetX = ((gridOffset.current.x % squareSize) + squareSize) % squareSize;
         const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
@@ -158,26 +182,26 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         const cols = Math.ceil(canvas.width / squareSize) + 3;
         const rows = Math.ceil(canvas.height / squareSize) + 3;
 
+        ctx.beginPath();
         for (let col = -2; col < cols; col++) {
           for (let row = -2; row < rows; row++) {
             const cx = col * squareSize + squareSize / 2 + offsetX;
             const cy = row * squareSize + squareSize / 2 + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
+            const alpha = cellOpacities.current.get(getCellKey(col, row));
             if (alpha) {
+              ctx.save();
               ctx.globalAlpha = alpha;
-              drawCircle(cx, cy, squareSize);
+              ctx.beginPath();
+              pathCircle(cx, cy, squareSize);
               ctx.fillStyle = hoverFillColor;
               ctx.fill();
-              ctx.globalAlpha = 1;
+              ctx.restore();
             }
-
-            drawCircle(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
-            ctx.stroke();
+            pathCircle(cx, cy, squareSize);
           }
         }
+        ctx.stroke();
       } else {
         const offsetX = ((gridOffset.current.x % squareSize) + squareSize) % squareSize;
         const offsetY = ((gridOffset.current.y % squareSize) + squareSize) % squareSize;
@@ -185,38 +209,41 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         const cols = Math.ceil(canvas.width / squareSize) + 3;
         const rows = Math.ceil(canvas.height / squareSize) + 3;
 
+        // Batch stroke for squares: Draw horizontal and vertical lines instead of rects
+        ctx.beginPath();
+        for (let col = -2; col < cols; col++) {
+          const x = col * squareSize + offsetX;
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, canvas.height);
+        }
+        for (let row = -2; row < rows; row++) {
+          const y = row * squareSize + offsetY;
+          ctx.moveTo(0, y);
+          ctx.lineTo(canvas.width, y);
+        }
+        ctx.stroke();
+
+        // Fill hovered cells
         for (let col = -2; col < cols; col++) {
           for (let row = -2; row < rows; row++) {
-            const sx = col * squareSize + offsetX;
-            const sy = row * squareSize + offsetY;
-
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
+            const alpha = cellOpacities.current.get(getCellKey(col, row));
             if (alpha) {
+              const sx = col * squareSize + offsetX;
+              const sy = row * squareSize + offsetY;
+              ctx.save();
               ctx.globalAlpha = alpha;
               ctx.fillStyle = hoverFillColor;
               ctx.fillRect(sx, sy, squareSize, squareSize);
-              ctx.globalAlpha = 1;
+              ctx.restore();
             }
-
-            ctx.strokeStyle = borderColor;
-            ctx.strokeRect(sx, sy, squareSize, squareSize);
           }
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient.current) {
+        ctx.fillStyle = cachedGradient.current;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {
@@ -251,16 +278,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
     };
 
     const updateCellOpacities = () => {
-      const targets = new Map<string, number>();
+      const targets = new Map<number, number>();
 
       if (hoveredSquare.current) {
-        targets.set(`${hoveredSquare.current.x},${hoveredSquare.current.y}`, 1);
+        targets.set(getCellKey(hoveredSquare.current.x, hoveredSquare.current.y), 1);
       }
 
       if (hoverTrailAmount > 0) {
         for (let i = 0; i < trailCells.current.length; i++) {
           const t = trailCells.current[i];
-          const key = `${t.x},${t.y}`;
+          const key = getCellKey(t.x, t.y);
           if (!targets.has(key)) {
             targets.set(key, (trailCells.current.length - i) / (trailCells.current.length + 1));
           }
@@ -402,4 +429,4 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
   return <canvas ref={canvasRef} className={`shapegrid-canvas ${className}`}></canvas>;
 };
 
-export default ShapeGrid;
+export default memo(ShapeGrid);

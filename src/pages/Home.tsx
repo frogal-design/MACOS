@@ -17,6 +17,17 @@ const Home = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border hermes-grid overflow-hidden">
+        {/* Optimized Animated Background */}
+        <ShapeGrid
+          shape="square"
+          borderColor="rgba(31, 46, 43, 0.5)"
+          hoverFillColor="rgba(218, 38, 39, 0.05)"
+          speed={0.5}
+          squareSize={40}
+          hoverTrailAmount={3}
+          className="absolute inset-0 z-0"
+        />
+
         <div className="container mx-auto px-6 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
