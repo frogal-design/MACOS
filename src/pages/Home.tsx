@@ -16,7 +16,14 @@ const Home = () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border hermes-grid overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border overflow-hidden">
+        <ShapeGrid
+          shape="square"
+          borderColor="rgba(31, 46, 43, 0.5)"
+          hoverFillColor="#DA2627"
+          speed={0.5}
+          squareSize={40}
+        />
         <div className="container mx-auto px-6 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
