@@ -18,3 +18,8 @@ View your app in AI Studio: https://ai.studio/apps/afca57ef-c111-4720-8f98-04252
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+## 🛡️ Security
+
+- **Environment Variables**: Sensitive keys like `GEMINI_API_KEY` must never be exposed in the frontend bundle. Ensure they are only used in server-side contexts or through secure API proxies.
+- **Vite Configuration**: Do not use the `define` property in `vite.config.ts` to inject secrets into the client-side code.
