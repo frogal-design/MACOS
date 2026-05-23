@@ -1,0 +1,4 @@
+## 2026-05-23 - Prevented exposure of GEMINI_API_KEY in frontend bundle
+**Vulnerability:** The `vite.config.ts` was using the `define` property to inject `process.env.GEMINI_API_KEY` into the client-side bundle. This would make the API key accessible to anyone who visits the website and inspects the source code or network traffic.
+**Learning:** Vite's `define` property replaces global variables with their values at build time. If used for sensitive secrets, those secrets become hardcoded in the public distribution files.
+**Prevention:** Remove sensitive keys from `vite.config.ts`'s `define` block. Only expose variables that are absolutely necessary for the frontend and are not sensitive (e.g., public feature flags). Use the `VITE_` prefix for frontend-safe environment variables as a standard practice, and never manually inject non-prefixed secrets via `define`.
