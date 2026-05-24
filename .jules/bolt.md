@@ -1,0 +1,3 @@
+## 2025-05-15 - React Component Data Hoisting & Memoization
+**Learning:** Defining static data arrays (like categories or media lists) inside functional components causes them to be recreated on every render, increasing memory pressure and potentially causing unnecessary downstream re-renders. Furthermore, performing expensive filtering and sorting operations directly in the render path (especially those involving `new Date()` conversions) can lead to frame drops during state updates that are unrelated to that data (e.g., opening/closing a modal).
+**Action:** Hoist static data to module scope and use `useMemo` for any derived data that depends on component state. Pre-sort static data at module scope whenever possible.
