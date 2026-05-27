@@ -1,0 +1,3 @@
+## 2025-05-15 - Optimizing Static Data and Callback Stability
+**Learning:** Hoisting static data to module scope is a fundamental win, but when that data involves union types (e.g., `type: 'image' | 'video'`), TypeScript requires `as const` or explicit casting to maintain type safety. Additionally, unstable function references in `useEffect` dependency arrays cause redundant effect executions; wrapping these in `useCallback` is critical for hooks that manage global state like `document.body.style` or window event listeners.
+**Action:** Always use `as const` for hoisted literal data and verify `useEffect` dependencies for stability to prevent churn.
