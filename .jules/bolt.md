@@ -1,0 +1,3 @@
+## 2026-05-22 - Optimizing static data and state derivation in Gallery component
+**Learning:** Hoisting static data arrays to module scope and pre-sorting them at compile/load time eliminates redundant O(N log N) sorting and O(N) reallocation during React render cycles. Deriving complex state (like selected items) from simple indices prevents synchronization bugs and reduces the state footprint.
+**Action:** Always check for static data defined inside components and move it to module scope. Use `useMemo` for derived collections and `useCallback` for stable function references in event listeners.
