@@ -1,0 +1,3 @@
+## 2026-05-22 - Optimization of Static Datasets in Gallery.tsx
+**Learning:** For components with large static datasets (like a gallery or news feed), declaring and sorting data within the render loop or even within `useMemo` introduces unnecessary overhead on every render. Hoisting the data to module scope and pre-sorting it once at initialization reduces runtime complexity from O(n log n) to O(n) for filtering/display.
+**Action:** Always check if data arrays can be hoisted and pre-sorted at the module level. Use `as const` on static objects to preserve literal types for TypeScript and simplify state by deriving "selected item" from an index rather than duplicating object state.
