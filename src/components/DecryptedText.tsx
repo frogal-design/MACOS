@@ -376,15 +376,20 @@ export default function DecryptedText({
       <span style={styles.srOnly}>{text}</span>
 
       <span aria-hidden="true">
-        {displayText.split('').map((char, index) => {
-          const isRevealedOrDone = revealedIndices.has(index) || (!isAnimating && isDecrypted);
+        {/* Optimization: Reduce DOM density by rendering a single text node once decrypted and not animating */}
+        {!isAnimating && isDecrypted ? (
+          <span className={className}>{text}</span>
+        ) : (
+          displayText.split('').map((char, index) => {
+            const isRevealedOrDone = revealedIndices.has(index) || (!isAnimating && isDecrypted);
 
-          return (
-            <span key={index} className={isRevealedOrDone ? className : encryptedClassName}>
-              {char}
-            </span>
-          );
-        })}
+            return (
+              <span key={index} className={isRevealedOrDone ? className : encryptedClassName}>
+                {char}
+              </span>
+            );
+          })
+        )}
       </span>
     </motion.span>
   );
