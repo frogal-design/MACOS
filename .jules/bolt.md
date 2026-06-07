@@ -1,0 +1,4 @@
+## 2026-06-18 - Hoisting and Pre-sorting Static Datasets
+**Learning:** Hoisting static data arrays to module scope prevents unnecessary re-allocation during React render cycles. Performing $O(n \log n)$ operations (like sorting) once at the module level instead of inside the component or `useMemo` reduces runtime complexity to $O(n)$ for subsequent filtering or rendering. When working with TypeScript union types in static data, using `as const` combined with an explicit type assertion (e.g., `const DATA = [...] as const as Type[]`) ensures both literal preservation and type safety.
+
+**Action:** Always check for static data defined within components or `useMemo` blocks. Hoist them to module scope and pre-calculate any orderings or transformations that don't depend on component state or props.
