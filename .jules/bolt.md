@@ -1,0 +1,3 @@
+## 2026-06-07 - Module-scope Pre-sorting and Derived State
+**Learning:** In data-heavy React pages like galleries or news feeds, defining large static datasets inside the component causes re-allocation on every render. Furthermore, performing $O(n \log n)$ sorting and $O(n)$ filtering within the render cycle (even with `useMemo`) adds unnecessary overhead. Hoisting static data to module scope and pre-sorting it once at the module level reduces runtime complexity.
+**Action:** Always hoist static arrays to module scope. Pre-sort them if they require a consistent order. Derive 'selected item' state from an index or ID and the source array rather than storing the object itself to prevent synchronization bugs and reduce redundant state updates.
