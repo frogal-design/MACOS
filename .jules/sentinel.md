@@ -1,0 +1,4 @@
+## 2026-06-12 - [CRITICAL] Prevented Secret Exposure via Vite `define`
+**Vulnerability:** Hardcoded secret exposure via build-time injection. The `vite.config.ts` was using `define` to inject `process.env.GEMINI_API_KEY` into the client-side bundle.
+**Learning:** Vite's `define` property performs a global search-and-replace during build time. Even if the variable is not explicitly referenced in the source code, it can lead to accidental exposure or serve as a vector for secret leaking if future code starts using it. Furthermore, `loadEnv(mode, '.', '')` with an empty prefix loads ALL environment variables, which is overly permissive.
+**Prevention:** Avoid using `define` for sensitive variables. Use the `VITE_` prefix for variables intended for the frontend, and ensure that only necessary variables are exposed via `import.meta.env`. Regularly audit the build configuration and the output bundle for leaked secrets.
