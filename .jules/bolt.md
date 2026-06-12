@@ -1,0 +1,3 @@
+## 2026-06-08 - [Optimized Gallery rendering and DecryptedText DOM footprint]
+**Learning:** Hoisting and pre-sorting static data at module scope in React components removes $O(n \log n)$ overhead from the render cycle. Additionally, flattening complex DOM structures (like per-character spans in text animations) into a single text node after the animation completes significantly reduces memory usage and prevents style recalculation lag for static content.
+**Action:** Always check if animated text components clean up their DOM structure after reaching a terminal state. Pre-sort static datasets at module level whenever possible.
