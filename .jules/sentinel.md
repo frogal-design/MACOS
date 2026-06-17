@@ -1,0 +1,4 @@
+## 2026-06-07 - Build-time Secret Injection in Vite
+**Vulnerability:** Build-time injection of sensitive environment variables into the client-side bundle via Vite's `define` property.
+**Learning:** Even if a variable like `GEMINI_API_KEY` is not explicitly referenced in the `src/` directory, Vite's `define` property performs a global search-and-replace during build time. This can inadvertently bundle secrets into the final JavaScript assets if they are set in the environment during the build process.
+**Prevention:** Avoid using `define` to inject secrets into the frontend. If secrets are needed by the frontend, use the standard `VITE_` prefixing mechanism, which is more explicit, or preferably, move sensitive logic to a backend/edge function to keep secrets entirely out of the client bundle. In this specific app, the secret was unused by the frontend, so it was safely removed.
