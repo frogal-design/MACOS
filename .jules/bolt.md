@@ -1,0 +1,3 @@
+## 2026-06-07 - Optimization of static datasets and derived state
+**Learning:** Hoisting static data arrays (like gallery items or categories) to the module level and pre-sorting them (O(n log n)) effectively removes sorting overhead from the React render cycle. Additionally, deriving "selected item" state from a primary index or ID rather than storing the object itself in state prevents synchronization bugs and reduces redundant state updates.
+**Action:** Always check for static arrays defined within component bodies. Use `as const satisfies T[]` to preserve literal types while ensuring type safety.
