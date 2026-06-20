@@ -8,6 +8,13 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/afca57ef-c111-4720-8f98-042527880754
 
+## 🛡️ Security Note
+
+This project is hardened by **Sentinel**.
+- Hardcoded secrets and build-time secret injection are strictly prohibited.
+- Always use environment variables for sensitive data.
+- Do not expose API keys in the client-side bundle via Vite's `define` property.
+
 ## Run Locally
 
 **Prerequisites:**  Node.js
@@ -15,6 +22,6 @@ View your app in AI Studio: https://ai.studio/apps/afca57ef-c111-4720-8f98-04252
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key (NEVER commit this key)
 3. Run the app:
    `npm run dev`
