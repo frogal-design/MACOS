@@ -1,0 +1,3 @@
+## 2026-06-18 - Hoisting Static Data and Rendering Optimization
+**Learning:** Defining static data arrays (like lists of clubs, stats, or gallery items) inside React component bodies causes unnecessary re-allocation on every render. Furthermore, performing $O(n \log n)$ operations like `.sort()` inside the render path or even inside `useMemo` (if the input is static) adds avoidable overhead.
+**Action:** Hoist all static datasets to module scope. Use `as const satisfies T[]` to maintain literal type safety. Pre-sort static collections once at the module level to reduce runtime complexity to $O(n)$ for subsequent filtering or mapping operations. Stabilize event handlers with `useCallback` when they are passed to memoized children or used in effect dependencies.
