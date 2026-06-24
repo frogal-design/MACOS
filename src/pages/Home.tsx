@@ -5,14 +5,22 @@ import { Link } from 'react-router-dom';
 import ShapeGrid from '../components/ShapeGrid';
 import DecryptedText from '../components/DecryptedText';
 
-const Home = () => {
-  const stats = [
-    { label: 'Subjects', val: '10+', icon: <BookOpen className="w-5 h-5" /> },
-    { label: 'Students', val: '3,000+', icon: <Users className="w-5 h-5" /> },
-    { label: 'Teachers', val: '50+', icon: <GraduationCap className="w-5 h-5" /> },
-    { label: 'Success', val: '99.9%', icon: <Trophy className="w-5 h-5" /> },
-  ];
+/**
+ * Performance Optimization:
+ * Static data arrays (STATS) hoisted to module scope.
+ * This prevents re-allocation of these arrays and their nested React elements (icons)
+ * on every render of the Home component.
+ * Estimated impact: Negligible for single render, but avoids O(n) work on every re-render.
+ */
 
+const STATS = [
+  { label: 'Subjects', val: '10+', icon: <BookOpen className="w-5 h-5" /> },
+  { label: 'Students', val: '3,000+', icon: <Users className="w-5 h-5" /> },
+  { label: 'Teachers', val: '50+', icon: <GraduationCap className="w-5 h-5" /> },
+  { label: 'Success', val: '99.9%', icon: <Trophy className="w-5 h-5" /> },
+] as const;
+
+const Home = () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -80,7 +88,7 @@ const Home = () => {
 
       {/* Stats Section */}
       <section className="grid grid-cols-1 md:grid-cols-4 border-b border-border">
-        {stats.map((stat, i) => (
+        {STATS.map((stat, i) => (
           <div key={i} className="p-12 border-r border-border last:border-r-0 flex flex-col gap-4 group hover:bg-bg-light transition-colors">
             <div className="text-accent group-hover:scale-110 transition-transform duration-500">
               {stat.icon}
@@ -114,7 +122,7 @@ const Home = () => {
             </h2>
             <p className="text-lg text-text-muted mb-12 font-light leading-relaxed italic border-l border-border pl-8">
               Welcome to Makerere College School. Our theme for 2025 is “Inspiring Team Commitment.” 
-              We are proud of our history and our pupils who define us through their good works.
+              We proud of our history and our pupils who define us through their good works.
             </p>
             <div className="font-mono text-sm">
               <div className="text-text-main tracking-widest uppercase mb-1">Dr. Martin Muyingo</div>
