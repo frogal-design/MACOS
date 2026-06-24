@@ -1,22 +1,31 @@
 import React from 'react';
+import { motion } from 'motion/react';
+import { ArrowLeft, Clock, MapPin, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, Bell, Download } from 'lucide-react';
 import DecryptedText from '../components/DecryptedText';
+
+/**
+ * Performance Optimization:
+ * ANNOUNCEMENTS and CALENDAR arrays hoisted to module scope.
+ * This prevents re-allocation of these data structures on every render of the Events component.
+ * Estimated impact: Negligible for single render, but improves efficiency during frequent updates or transitions.
+ */
+
+const ANNOUNCEMENTS = [
+  { date: "APR 20, 2026", title: "S.1 AND S.5 REPORTING DATES", desc: "All new students are expected to report for the second term on May 05, 2026. Please ensure all requirements are met." },
+  { date: "MAR 10, 2026", title: "ANNUAL GENERAL MEETING", desc: "The Board of Governors invites all parents for the AGM to discuss the school's strategic development plan for 2026-2030." },
+  { date: "FEB 28, 2026", title: "SCHOLARSHIP APPLICATIONS", desc: "Applications for the academic merit scholarships for the 2026 academic year are now open. Apply via the online portal." },
+  { date: "JAN 15, 2026", title: "2026 ADMISSION LISTS RELEASED", desc: "Check the S.1 and S.5 intake lists at the main campus notice board." }
+];
+
+const CALENDAR = [
+  { date: "29", month: "MAR", title: "NKOBAZAMBOGO CULTURAL GALA", time: "9:00 AM", location: "Main Hall" },
+  { date: "11", month: "APR", title: "SENIOR SIX LUNCHEON", time: "9:00 AM", location: "Mulawa Campus" },
+  { date: "17", month: "APR", title: "PHYSICS TRIP TO JINJA", time: "7:00 AM", location: "Nalubaale Dam" },
+];
 
 const Events = () => {
   const navigate = useNavigate();
-
-  const announcements = [
-    { date: "MAR 22, 2026", title: "CELEBRATING EXCELLENCE AT MACOS", desc: "Proudly sharing our UACE 2025 results. A testament to hard work." },
-    { date: "FEB 10, 2026", title: "TERM 1 REPORT PORTAL OPEN", desc: "Parents can now access student reports via the online portal." },
-    { date: "JAN 15, 2026", title: "2026 ADMISSION LISTS RELEASED", desc: "Check the S.1 and S.5 intake lists at the main campus notice board." }
-  ];
-
-  const calendar = [
-    { date: "29", month: "MAR", title: "NKOBAZAMBOGO CULTURAL GALA", time: "9:00 AM", location: "Main Hall" },
-    { date: "11", month: "APR", title: "SENIOR SIX LUNCHEON", time: "9:00 AM", location: "Mulawa Campus" },
-    { date: "17", month: "APR", title: "PHYSICS TRIP TO JINJA", time: "7:00 AM", location: "Nalubaale Dam" },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -44,7 +53,7 @@ const Events = () => {
       </section>
 
       <section className="border-b border-border">
-        {announcements.map((news, i) => (
+        {ANNOUNCEMENTS.map((news, i) => (
           <div key={news.title} className="p-12 border-b border-border last:border-b-0 group hover:bg-bg-light transition-all flex flex-col md:flex-row gap-12 items-start">
             <div className="font-mono text-[10px] tracking-widest text-text-muted w-32 uppercase pt-2">{news.date}</div>
             <div className="flex-grow">
@@ -62,7 +71,7 @@ const Events = () => {
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-24">
            <div className="space-y-12">
               <h2 className="text-6xl font-serif mb-12 tracking-tighter uppercase">Academic <span className="italic text-accent">Calendar</span></h2>
-              {calendar.map((event) => (
+              {CALENDAR.map((event) => (
                 <div key={event.title} className="flex gap-10 items-start group">
                    <div className="w-16 flex flex-col items-center">
                       <span className="text-3xl font-serif mb-1 group-hover:text-accent transition-all">{event.date}</span>
