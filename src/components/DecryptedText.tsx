@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
 
 const styles = {
@@ -34,7 +34,7 @@ interface DecryptedTextProps {
   [key: string]: any;
 }
 
-export default function DecryptedText({
+const DecryptedText = React.memo(({
   text,
   speed = 50,
   maxIterations = 10,
@@ -48,7 +48,7 @@ export default function DecryptedText({
   animateOn = 'hover',
   clickMode = 'once',
   ...props
-}: DecryptedTextProps) {
+}: DecryptedTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set());
@@ -274,9 +274,7 @@ export default function DecryptedText({
     shuffleText,
     direction,
     fillAllIndices,
-    removeRandomIndices,
-    characters,
-    useOriginalCharsOnly
+    removeRandomIndices
   ]);
 
   const handleClick = () => {
@@ -388,4 +386,6 @@ export default function DecryptedText({
       </span>
     </motion.span>
   );
-}
+});
+
+export default DecryptedText;
