@@ -1,0 +1,4 @@
+## 2026-06-18 - Unnecessary build-time secret injection
+**Vulnerability:** The `vite.config.ts` was configured to use Vite's `define` property to inject `process.env.GEMINI_API_KEY` into the client-side bundle, despite the key not being used anywhere in the frontend code.
+**Learning:** Build-time replacements via `define` perform a global search-and-replace in the entire bundle. If a sensitive environment variable is included in `define`, it can be exposed in the client-side artifacts even if it's not explicitly referenced in the source code, especially if there are any lingering `process.env` references or if the replacement string appears in dependencies.
+**Prevention:** Only use Vite's `define` or `VITE_` prefixed environment variables for values that MUST be available to the client. Regularly audit `vite.config.ts` and remove unused environment variable injections and unused AI-related dependencies to reduce attack surface.
