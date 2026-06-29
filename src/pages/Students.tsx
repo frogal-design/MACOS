@@ -4,17 +4,18 @@ import { ArrowLeft, Users, Trophy, Music, Palette, Tent, ShieldCheck } from 'luc
 import { useNavigate } from 'react-router-dom';
 import DecryptedText from '../components/DecryptedText';
 
+// Static data hoisted to module scope to prevent re-allocation on every render
+const CLUBS = [
+  { name: "THE SCOUTS CLUB", icon: <ShieldCheck size={32} />, desc: "Building discipline and survival skills since the school's inception." },
+  { name: "NKABA ZAMBOGO", icon: <Palette size={32} />, desc: "Preserving cultural heritage through art, dance, and storytelling." },
+  { name: "RUGBY TEAM", icon: <Trophy size={32} />, desc: "Reigning kings of the U20 championship. Intensity and teamwork." },
+  { name: "WILDLIFE CLUB", icon: <Tent size={32} />, desc: "Conservation efforts and exploration of Uganda's natural beauty." },
+  { name: "MUSIC & DRAMA", icon: <Music size={32} />, desc: "Creative expression through theatrical performances and choir." },
+  { name: "ICT CLUB", icon: <Users size={32} />, desc: "Innovating through technology and digital literacy programs." },
+];
+
 const Students = () => {
   const navigate = useNavigate();
-
-  const clubs = [
-    { name: "THE SCOUTS CLUB", icon: <ShieldCheck size={32} />, desc: "Building discipline and survival skills since the school's inception." },
-    { name: "NKABA ZAMBOGO", icon: <Palette size={32} />, desc: "Preserving cultural heritage through art, dance, and storytelling." },
-    { name: "RUGBY TEAM", icon: <Trophy size={32} />, desc: "Reigning kings of the U20 championship. Intensity and teamwork." },
-    { name: "WILDLIFE CLUB", icon: <Tent size={32} />, desc: "Conservation efforts and exploration of Uganda's natural beauty." },
-    { name: "MUSIC & DRAMA", icon: <Music size={32} />, desc: "Creative expression through theatrical performances and choir." },
-    { name: "ICT CLUB", icon: <Users size={32} />, desc: "Innovating through technology and digital literacy programs." },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -54,7 +55,7 @@ const Students = () => {
       {/* Clubs Grid */}
       <section className="py-0 border-b border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {clubs.map((club, i) => (
+          {CLUBS.map((club, i) => (
             <div key={i} className="p-20 border-r border-b border-border last:border-r-0 group hover:bg-bg-light transition-all">
               <div className="text-accent mb-10 group-hover:scale-110 transition-transform duration-500">
                 {club.icon}

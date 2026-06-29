@@ -1,0 +1,3 @@
+## 2026-06-18 - [Hoisting and Sorting Static Data]
+**Learning:** Hoisting static arrays to module scope prevents redundant allocations on every render. However, if these arrays need to be sorted (O(n log n)), doing it at the module level is most efficient. TypeScript's `as const` makes arrays read-only, so in-place `.sort()` requires a shallow copy (e.g., `.slice()`). Care must be taken to preserve literal types (unions) during this copy to avoid type widening to `string`.
+**Action:** Define static data with `as const`, then use `([ ... ] as const).map(item => ({ ...item }))` or `.slice()` and explicitly type the resulting hoisted constant to ensure both performance and type safety.
