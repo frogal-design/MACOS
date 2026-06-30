@@ -1,0 +1,3 @@
+## 2026-06-21 - [Static Data Hoisting and Pre-sorting]
+**Learning:** Static data arrays defined inside React components cause re-allocation on every render. Large arrays (like `MEDIA` in `Gallery.tsx`) that require sorting/filtering can significantly impact performance if processed on every render cycle.
+**Action:** Hoist static configuration and data arrays to module scope. Pre-sort data once at the module level (O(n log n)) to allow for efficient O(n) filtering within the component using `useMemo`. Apply `as const` to static data and use `.slice()` if mutation (like `.sort()`) is needed after hoisting to satisfy TypeScript's read-only constraints.
