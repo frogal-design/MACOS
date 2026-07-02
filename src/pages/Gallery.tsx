@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Play, Maximize2, Image as ImageIcon, Video, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,15 +14,9 @@ interface MediaItem {
   description?: string;
 }
 
-const Gallery = () => {
-  const navigate = useNavigate();
-  const [filter, setFilter] = useState('all');
-  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+const CATEGORIES = ['all', 'events', 'sports', 'campus', 'clubs', 'leadership'] as const;
 
-  const categories = ['all', 'events', 'sports', 'campus', 'clubs', 'leadership'];
-
-  const media: MediaItem[] = [
+const MEDIA: MediaItem[] = ([
     { 
       id: 1, 
       type: 'image', 
@@ -140,10 +134,17 @@ const Gallery = () => {
       date: '2026-03-20',
       description: 'MACOS player showcasing technique during a league match.'
     }
-  ];
+  ] as MediaItem[]).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const filteredMedia = (filter === 'all' ? media : media.filter(m => m.category === filter))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const Gallery = () => {
+  const navigate = useNavigate();
+  const [filter, setFilter] = useState('all');
+  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+
+  const filteredMedia = useMemo(() => {
+    return filter === 'all' ? MEDIA : MEDIA.filter(m => m.category === filter);
+  }, [filter]);
 
   const openModal = (item: MediaItem, index: number) => {
     setSelectedMedia(item);
@@ -229,7 +230,7 @@ const Gallery = () => {
               <Filter size={14} className="opacity-60" /> Sort By:
             </div>
             <div className="flex gap-10">
-              {categories.map(cat => (
+              {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setFilter(cat)}
@@ -309,7 +310,9 @@ const Gallery = () => {
             {/* Modal Header */}
             <div className="flex justify-between items-center p-8 border-b border-border/50">
               <div>
-                <div className="font-serif text-[10px] tracking-[0.5em] text-accent uppercase font-medium mb-2">{selectedMedia.category} • {selectedMedia.date}</div>
+                <div className="font-serif text-[10px] tracking-[0.5em] text-accent uppercase font-medium mb-2">
+                  {selectedMedia.category} • {new Date(selectedMedia.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </div>
                 <h4 className="text-3xl font-serif tracking-tighter uppercase">{selectedMedia.title}</h4>
               </div>
               <button 
@@ -393,6 +396,7 @@ const Gallery = () => {
                 <div className="aspect-[4/5] bg-bg overflow-hidden border border-border relative group/vid shadow-2xl">
                   <img 
                     src="https://makererecollege.sc.ug/wp-content/uploads/slider/cache/a84a0aabcd01c0b3c2898ba45bf34a50/IMG_6967-1.jpg" 
+                    loading="lazy"
                     className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105" 
                     alt="Video series cover"
                   />
