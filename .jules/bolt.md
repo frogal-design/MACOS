@@ -1,0 +1,3 @@
+## 2026-06-25 - [Static Data Hoisting and Memoization]
+**Learning:** Static data arrays defined within React components cause redundant re-allocations on every render, increasing memory pressure and GC churn. Complex operations like sorting and filtering on these arrays within the render path lead to O(n log n) or O(n) overhead that scales with list size.
+**Action:** Hoist static configuration and data arrays to the module scope (using `as const` for type safety). Pre-sort static lists at module scope and use `useMemo` for filtering to ensure render-time complexity is minimized to O(n) only when dependencies change.
