@@ -1,0 +1,4 @@
+## 2026-06-25 - Vite `define` Secret Exposure
+**Vulnerability:** Use of Vite's `define` configuration to inject secrets like `GEMINI_API_KEY` into the client-side bundle.
+**Learning:** Vite's `define` performs a global search-and-replace during build time. This means that even if a variable is not explicitly used in the source code, any placeholder matching the key in the `define` object will be replaced with the secret value in the final bundled JS, making it accessible to anyone viewing the client-side source.
+**Prevention:** Never use Vite `define` for sensitive keys. Keep secrets on the server-side and access them via secure API endpoints, or use environment variables only in server-side code (e.g., in Vite plugins or SSR). For client-side configuration that must be public, use the `VITE_` prefix which is the standard and explicit way to expose variables in Vite.
