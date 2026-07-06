@@ -5,14 +5,16 @@ import { Link } from 'react-router-dom';
 import ShapeGrid from '../components/ShapeGrid';
 import DecryptedText from '../components/DecryptedText';
 
-const Home = () => {
-  const stats = [
-    { label: 'Subjects', val: '10+', icon: <BookOpen className="w-5 h-5" /> },
-    { label: 'Students', val: '3,000+', icon: <Users className="w-5 h-5" /> },
-    { label: 'Teachers', val: '50+', icon: <GraduationCap className="w-5 h-5" /> },
-    { label: 'Success', val: '99.9%', icon: <Trophy className="w-5 h-5" /> },
-  ];
+// Performance Optimization: Hoisted static data to module scope
+// to prevent re-allocation on every render.
+const STATS = [
+  { label: 'Subjects', val: '10+', icon: <BookOpen className="w-5 h-5" /> },
+  { label: 'Students', val: '3,000+', icon: <Users className="w-5 h-5" /> },
+  { label: 'Teachers', val: '50+', icon: <GraduationCap className="w-5 h-5" /> },
+  { label: 'Success', val: '99.9%', icon: <Trophy className="w-5 h-5" /> },
+];
 
+const Home = () => {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -80,7 +82,7 @@ const Home = () => {
 
       {/* Stats Section */}
       <section className="grid grid-cols-1 md:grid-cols-4 border-b border-border">
-        {stats.map((stat, i) => (
+        {STATS.map((stat, i) => (
           <div key={i} className="p-12 border-r border-border last:border-r-0 flex flex-col gap-4 group hover:bg-bg-light transition-colors">
             <div className="text-accent group-hover:scale-110 transition-transform duration-500">
               {stat.icon}

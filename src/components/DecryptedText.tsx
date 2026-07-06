@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { motion } from 'motion/react';
 
 const styles = {
@@ -34,7 +34,7 @@ interface DecryptedTextProps {
   [key: string]: any;
 }
 
-export default function DecryptedText({
+function DecryptedText({
   text,
   speed = 50,
   maxIterations = 10,
@@ -371,21 +371,36 @@ export default function DecryptedText({
           }
         : {};
 
+  const isFullyDecrypted = !isAnimating && isDecrypted;
+
   return (
     <motion.span className={parentClassName} ref={containerRef} style={styles.wrapper} {...animateProps} {...props}>
       <span style={styles.srOnly}>{text}</span>
 
       <span aria-hidden="true">
-        {displayText.split('').map((char, index) => {
-          const isRevealedOrDone = revealedIndices.has(index) || (!isAnimating && isDecrypted);
+        {/*
+            Performance Optimization: Reduced DOM node count when animation is idle.
+            By rendering a single span instead of one per character, we significantly
+            reduce the memory footprint and re-render cost for the fully decrypted state.
+        */}
+        {isFullyDecrypted ? (
+          <span className={className}>{displayText}</span>
+        ) : (
+          displayText.split('').map((char, index) => {
+            const isRevealed = revealedIndices.has(index);
 
-          return (
-            <span key={index} className={isRevealedOrDone ? className : encryptedClassName}>
-              {char}
-            </span>
-          );
-        })}
+            return (
+              <span key={index} className={isRevealed ? className : encryptedClassName}>
+                {char}
+              </span>
+            );
+          })
+        )}
       </span>
     </motion.span>
   );
 }
+
+// Performance Optimization: React.memo prevents unnecessary re-renders
+// when the parent component updates unrelated state.
+export default React.memo(DecryptedText);
