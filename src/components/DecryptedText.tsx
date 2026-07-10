@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback, memo } from 'react';
 import { motion } from 'motion/react';
 
 const styles = {
@@ -34,7 +34,7 @@ interface DecryptedTextProps {
   [key: string]: any;
 }
 
-export default function DecryptedText({
+const DecryptedText = memo(({
   text,
   speed = 50,
   maxIterations = 10,
@@ -48,7 +48,7 @@ export default function DecryptedText({
   animateOn = 'hover',
   clickMode = 'once',
   ...props
-}: DecryptedTextProps) {
+}: DecryptedTextProps) => {
   const [displayText, setDisplayText] = useState(text);
   const [isAnimating, setIsAnimating] = useState(false);
   const [revealedIndices, setRevealedIndices] = useState<Set<number>>(new Set());
@@ -376,16 +376,22 @@ export default function DecryptedText({
       <span style={styles.srOnly}>{text}</span>
 
       <span aria-hidden="true">
-        {displayText.split('').map((char, index) => {
-          const isRevealedOrDone = revealedIndices.has(index) || (!isAnimating && isDecrypted);
+        {!isAnimating && isDecrypted ? (
+          <span className={className}>{displayText}</span>
+        ) : (
+          displayText.split('').map((char, index) => {
+            const isRevealedOrDone = revealedIndices.has(index) || (!isAnimating && isDecrypted);
 
-          return (
-            <span key={index} className={isRevealedOrDone ? className : encryptedClassName}>
-              {char}
-            </span>
-          );
-        })}
+            return (
+              <span key={index} className={isRevealedOrDone ? className : encryptedClassName}>
+                {char}
+              </span>
+            );
+          })
+        )}
       </span>
     </motion.span>
   );
-}
+});
+
+export default DecryptedText;
