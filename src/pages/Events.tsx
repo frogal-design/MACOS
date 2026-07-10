@@ -1,22 +1,24 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, MapPin, Bell, Download } from 'lucide-react';
+import { ArrowLeft, Clock, MapPin, Download } from 'lucide-react';
 import DecryptedText from '../components/DecryptedText';
+
+const ANNOUNCEMENTS = [
+  { date: "MAR 22, 2026", title: "CELEBRATING EXCELLENCE AT MACOS", desc: "Proudly sharing our UACE 2025 results. A testament to hard work." },
+  { date: "FEB 10, 2026", title: "TERM 1 REPORT PORTAL OPEN", desc: "Parents can now access student reports via the online portal." },
+  { date: "JAN 15, 2026", title: "2026 ADMISSION LISTS RELEASED", desc: "Check the S.1 and S.5 intake lists at the main campus notice board." }
+];
+
+const CALENDAR = [
+  { date: "29", month: "MAR", title: "NKOBAZAMBOGO CULTURAL GALA", time: "9:00 AM", location: "Main Hall" },
+  { date: "11", month: "APR", title: "SENIOR SIX LUNCHEON", time: "9:00 AM", location: "Mulawa Campus" },
+  { date: "17", month: "APR", title: "PHYSICS TRIP TO JINJA", time: "7:00 AM", location: "Nalubaale Dam" },
+];
+
+const PORTALS = ['Student Results', 'E-Learning', 'Staff Mail'];
 
 const Events = () => {
   const navigate = useNavigate();
-
-  const announcements = [
-    { date: "MAR 22, 2026", title: "CELEBRATING EXCELLENCE AT MACOS", desc: "Proudly sharing our UACE 2025 results. A testament to hard work." },
-    { date: "FEB 10, 2026", title: "TERM 1 REPORT PORTAL OPEN", desc: "Parents can now access student reports via the online portal." },
-    { date: "JAN 15, 2026", title: "2026 ADMISSION LISTS RELEASED", desc: "Check the S.1 and S.5 intake lists at the main campus notice board." }
-  ];
-
-  const calendar = [
-    { date: "29", month: "MAR", title: "NKOBAZAMBOGO CULTURAL GALA", time: "9:00 AM", location: "Main Hall" },
-    { date: "11", month: "APR", title: "SENIOR SIX LUNCHEON", time: "9:00 AM", location: "Mulawa Campus" },
-    { date: "17", month: "APR", title: "PHYSICS TRIP TO JINJA", time: "7:00 AM", location: "Nalubaale Dam" },
-  ];
 
   return (
     <div className="min-h-screen">
@@ -44,7 +46,7 @@ const Events = () => {
       </section>
 
       <section className="border-b border-border">
-        {announcements.map((news, i) => (
+        {ANNOUNCEMENTS.map((news) => (
           <div key={news.title} className="p-12 border-b border-border last:border-b-0 group hover:bg-bg-light transition-all flex flex-col md:flex-row gap-12 items-start">
             <div className="font-mono text-[10px] tracking-widest text-text-muted w-32 uppercase pt-2">{news.date}</div>
             <div className="flex-grow">
@@ -62,7 +64,7 @@ const Events = () => {
         <div className="container mx-auto px-6 grid lg:grid-cols-2 gap-24">
            <div className="space-y-12">
               <h2 className="text-6xl font-serif mb-12 tracking-tighter uppercase">Academic <span className="italic text-accent">Calendar</span></h2>
-              {calendar.map((event) => (
+              {CALENDAR.map((event) => (
                 <div key={event.title} className="flex gap-10 items-start group">
                    <div className="w-16 flex flex-col items-center">
                       <span className="text-3xl font-serif mb-1 group-hover:text-accent transition-all">{event.date}</span>
@@ -82,7 +84,7 @@ const Events = () => {
            <div className="bg-bg-light border border-border p-12">
               <h3 className="text-4xl font-serif mb-8 uppercase">Portals</h3>
               <div className="space-y-4 font-mono text-[10px] tracking-widest">
-                 {['Student Results', 'E-Learning', 'Staff Mail'].map((p) => (
+                 {PORTALS.map((p) => (
                    <button key={p} className="w-full p-6 border border-border flex justify-between hover:border-accent hover:text-accent transition-all">
                       {p.toUpperCase()} <Download size={16} />
                    </button>
