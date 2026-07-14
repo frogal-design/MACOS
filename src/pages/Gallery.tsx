@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Play, Maximize2, Image as ImageIcon, Video, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,136 +14,137 @@ interface MediaItem {
   description?: string;
 }
 
+const CATEGORIES = ['all', 'events', 'sports', 'campus', 'clubs', 'leadership'];
+
+const MEDIA: MediaItem[] = [
+  {
+    id: 1,
+    type: 'image' as const,
+    category: 'campus',
+    title: 'MACOS MAIN CAMPUS',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/f4b160855997bcee913d4698a9e6ac22/new_slider.jpg',
+    date: '2025-05-01',
+    description: 'The iconic main gate of Makerere College School, a symbol of excellence since 1945.'
+  },
+  {
+    id: 2,
+    type: 'image' as const,
+    category: 'leadership',
+    title: 'STUDENT COUNCIL ELECTIONS',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/IMG-20260407-WA0003.jpg',
+    date: '2026-04-07',
+    description: 'Democracy in action during the 2026 Student Council representative elections.'
+  },
+  {
+    id: 3,
+    type: 'image' as const,
+    category: 'sports',
+    title: 'RUGBY CHAMPIONS 2026',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-30-at-6.51.00-AM.jpeg',
+    date: '2026-03-30',
+    description: 'The MACOS Rugby team celebrating a hard-fought victory at the national championships.'
+  },
+  {
+    id: 4,
+    type: 'image' as const,
+    category: 'events',
+    title: 'CULTURAL DAY CELEBRATIONS',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/WhatsApp-Image-2026-03-31-at-10.29.43-AM-10.jpeg',
+    date: '2026-03-31',
+    description: 'Students showcasing traditional dances and attire from various Ugandan cultures.'
+  },
+  {
+    id: 5,
+    type: 'image' as const,
+    category: 'campus',
+    title: 'CLASSROOM FACILITIES',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/5d8910c983d996b3be09b2818385d031/IMG_1001-scaled.jpg',
+    date: '2025-01-15',
+    description: 'Modernized classroom blocks designed to provide an optimal learning environment.'
+  },
+  {
+    id: 6,
+    type: 'image' as const,
+    category: 'events',
+    title: 'MORNING SCHOOL ASSEMBLY',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/7d45eff89cd986b2aebac852a90543d2/20240709174657_IMG_9372.jpg',
+    date: '2024-07-09',
+    description: 'The whole school gathered for morning assembly at the main court.'
+  },
+  {
+    id: 7,
+    type: 'image' as const,
+    category: 'sports',
+    title: 'RUGBY FINALS ACTION',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/a84a0aabcd01c0b3c2898ba45bf34a50/IMG_6967-1.jpg',
+    date: '2025-10-20',
+    description: 'Intense rugby action during the regional finals tournament.'
+  },
+  {
+    id: 8,
+    type: 'image' as const,
+    category: 'campus',
+    title: 'MULAWA CAMPUS GROUNDS',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/ed4f50c6009ef107ebbd16ad5f5f520c/20250611_131310-scaled.jpg',
+    date: '2025-06-11',
+    description: 'Aerial view of the sprawling Mulawa campus which houses various sports facilities.'
+  },
+  {
+    id: 9,
+    type: 'image' as const,
+    category: 'leadership',
+    title: 'ELECTION BALLOT CASTING',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/IMG-20260407-WA0004.jpg',
+    date: '2026-04-07',
+    description: 'Students exercise their right to vote for their student leaders.'
+  },
+  {
+    id: 10,
+    type: 'image' as const,
+    category: 'sports',
+    title: 'TROPHY CEREMONY',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/sports_trophy.jpg',
+    date: '2026-03-29',
+    description: 'Receiving the overall winners trophy after a successful sports season.'
+  },
+  {
+    id: 11,
+    type: 'image' as const,
+    category: 'events',
+    title: 'CAMPUS CELEBRATIONS',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/celebration_1.jpg',
+    date: '2026-03-25',
+    description: 'Infectious joy on the campus after a major school achievement.'
+  },
+  {
+    id: 12,
+    type: 'image' as const,
+    category: 'leadership',
+    title: 'VOTING PROCESS OVERVIEW',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/voting_setup.jpg',
+    date: '2026-04-07',
+    description: 'The organized setup for the school participatory elections.'
+  },
+  {
+    id: 13,
+    type: 'image' as const,
+    category: 'sports',
+    title: 'RUGBY MATCH HIGHLIGHT',
+    url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/rugby_kick.jpg',
+    date: '2026-03-20',
+    description: 'MACOS player showcasing technique during a league match.'
+  }
+].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
 const Gallery = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
 
-  const categories = ['all', 'events', 'sports', 'campus', 'clubs', 'leadership'];
-
-  const media: MediaItem[] = [
-    { 
-      id: 1, 
-      type: 'image', 
-      category: 'campus', 
-      title: 'MACOS MAIN CAMPUS', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/f4b160855997bcee913d4698a9e6ac22/new_slider.jpg',
-      date: '2025-05-01',
-      description: 'The iconic main gate of Makerere College School, a symbol of excellence since 1945.'
-    },
-    { 
-      id: 2, 
-      type: 'image', 
-      category: 'leadership', 
-      title: 'STUDENT COUNCIL ELECTIONS', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/IMG-20260407-WA0003.jpg',
-      date: '2026-04-07',
-      description: 'Democracy in action during the 2026 Student Council representative elections.'
-    },
-    { 
-      id: 3, 
-      type: 'image', 
-      category: 'sports', 
-      title: 'RUGBY CHAMPIONS 2026', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/WhatsApp-Image-2026-03-30-at-6.51.00-AM.jpeg',
-      date: '2026-03-30',
-      description: 'The MACOS Rugby team celebrating a hard-fought victory at the national championships.'
-    },
-    { 
-      id: 4, 
-      type: 'image', 
-      category: 'events', 
-      title: 'CULTURAL DAY CELEBRATIONS', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/WhatsApp-Image-2026-03-31-at-10.29.43-AM-10.jpeg',
-      date: '2026-03-31',
-      description: 'Students showcasing traditional dances and attire from various Ugandan cultures.'
-    },
-    { 
-      id: 5, 
-      type: 'image', 
-      category: 'campus', 
-      title: 'CLASSROOM FACILITIES', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/5d8910c983d996b3be09b2818385d031/IMG_1001-scaled.jpg',
-      date: '2025-01-15',
-      description: 'Modernized classroom blocks designed to provide an optimal learning environment.'
-    },
-    { 
-      id: 6, 
-      type: 'image', 
-      category: 'events', 
-      title: 'MORNING SCHOOL ASSEMBLY', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/7d45eff89cd986b2aebac852a90543d2/20240709174657_IMG_9372.jpg',
-      date: '2024-07-09',
-      description: 'The whole school gathered for morning assembly at the main court.'
-    },
-    { 
-      id: 7, 
-      type: 'image', 
-      category: 'sports', 
-      title: 'RUGBY FINALS ACTION', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/a84a0aabcd01c0b3c2898ba45bf34a50/IMG_6967-1.jpg',
-      date: '2025-10-20',
-      description: 'Intense rugby action during the regional finals tournament.'
-    },
-    { 
-      id: 8, 
-      type: 'image', 
-      category: 'campus', 
-      title: 'MULAWA CAMPUS GROUNDS', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/slider/cache/ed4f50c6009ef107ebbd16ad5f5f520c/20250611_131310-scaled.jpg',
-      date: '2025-06-11',
-      description: 'Aerial view of the sprawling Mulawa campus which houses various sports facilities.'
-    },
-    { 
-      id: 9, 
-      type: 'image', 
-      category: 'leadership', 
-      title: 'ELECTION BALLOT CASTING', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/IMG-20260407-WA0004.jpg',
-      date: '2026-04-07',
-      description: 'Students exercise their right to vote for their student leaders.'
-    },
-    { 
-      id: 10, 
-      type: 'image', 
-      category: 'sports', 
-      title: 'TROPHY CEREMONY', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/sports_trophy.jpg',
-      date: '2026-03-29',
-      description: 'Receiving the overall winners trophy after a successful sports season.'
-    },
-    { 
-      id: 11, 
-      type: 'image', 
-      category: 'events', 
-      title: 'CAMPUS CELEBRATIONS', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/celebration_1.jpg',
-      date: '2026-03-25',
-      description: 'Infectious joy on the campus after a major school achievement.'
-    },
-    { 
-      id: 12, 
-      type: 'image', 
-      category: 'leadership', 
-      title: 'VOTING PROCESS OVERVIEW', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/04/voting_setup.jpg',
-      date: '2026-04-07',
-      description: 'The organized setup for the school participatory elections.'
-    },
-    { 
-      id: 13, 
-      type: 'image', 
-      category: 'sports', 
-      title: 'RUGBY MATCH HIGHLIGHT', 
-      url: 'https://makererecollege.sc.ug/wp-content/uploads/2026/03/rugby_kick.jpg', 
-      date: '2026-03-20',
-      description: 'MACOS player showcasing technique during a league match.'
-    }
-  ];
-
-  const filteredMedia = (filter === 'all' ? media : media.filter(m => m.category === filter))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const filteredMedia = useMemo(() =>
+    filter === 'all' ? MEDIA : MEDIA.filter(m => m.category === filter),
+  [filter]);
 
   const openModal = (item: MediaItem, index: number) => {
     setSelectedMedia(item);
@@ -229,7 +230,7 @@ const Gallery = () => {
               <Filter size={14} className="opacity-60" /> Sort By:
             </div>
             <div className="flex gap-10">
-              {categories.map(cat => (
+              {CATEGORIES.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setFilter(cat)}
@@ -393,6 +394,7 @@ const Gallery = () => {
                 <div className="aspect-[4/5] bg-bg overflow-hidden border border-border relative group/vid shadow-2xl">
                   <img 
                     src="https://makererecollege.sc.ug/wp-content/uploads/slider/cache/a84a0aabcd01c0b3c2898ba45bf34a50/IMG_6967-1.jpg" 
+                  loading="lazy"
                     className="w-full h-full object-cover grayscale transition-all duration-1000 group-hover:grayscale-0 group-hover:scale-105" 
                     alt="Video series cover"
                   />
