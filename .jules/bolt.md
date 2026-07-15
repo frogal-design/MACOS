@@ -5,3 +5,7 @@
 ## 2026-06-25 - [Static Data Hoisting & Memoization]
 **Learning:** Defining large data arrays or objects inside functional components causes re-allocation on every render, even if the data never changes. Hoisting these to module scope and using `useMemo` for derived data (like filtered lists) ensures stable references and reduces GC pressure.
 **Action:** Standardize on SCREAMING_SNAKE_CASE module-scope constants for static UI data and use `useMemo` for any transformation of that data based on component state.
+
+## 2026-07-15 - [State Consolidation & Listener Stability]
+**Learning:** In complex interactive components like galleries, using separate state variables for visibility and index can lead to redundant renders. Consolidating them (e.g., using `null` for "closed") simplifies logic and improves performance. Furthermore, wrapping event handlers in `useCallback` is critical when they are dependencies of `useEffect` to prevent "listener churn" (constant re-binding to window/document).
+**Action:** Always check if multiple state variables can be consolidated. Ensure all global event listeners use stable callback references to avoid unnecessary re-binding.
