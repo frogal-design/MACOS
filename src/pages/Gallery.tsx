@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Play, Maximize2, Image as ImageIcon, Video, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -139,45 +139,49 @@ const MEDIA: MediaItem[] = [
 const Gallery = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
-  const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 
   const filteredMedia = useMemo(() =>
     filter === 'all' ? MEDIA : MEDIA.filter(m => m.category === filter),
   [filter]);
 
-  const openModal = (item: MediaItem, index: number) => {
-    setSelectedMedia(item);
+  // Derived state to avoid redundant state updates
+  const selectedMedia = useMemo(() =>
+    currentIndex !== null ? filteredMedia[currentIndex] : null
+  , [currentIndex, filteredMedia]);
+
+  const openModal = useCallback((index: number) => {
     setCurrentIndex(index);
     document.body.style.overflow = 'hidden';
-  };
+  }, []);
 
-  const closeModal = () => {
-    setSelectedMedia(null);
-    setCurrentIndex(-1);
+  const closeModal = useCallback(() => {
+    setCurrentIndex(null);
     document.body.style.overflow = 'auto';
-  };
+  }, []);
 
-  const navigateModal = (direction: 'prev' | 'next') => {
-    const newIndex = direction === 'next' 
-      ? (currentIndex + 1) % filteredMedia.length 
-      : (currentIndex - 1 + filteredMedia.length) % filteredMedia.length;
-    
-    setSelectedMedia(filteredMedia[newIndex]);
-    setCurrentIndex(newIndex);
-  };
+  const navigateModal = useCallback((direction: 'prev' | 'next') => {
+    setCurrentIndex(prevIndex => {
+      if (prevIndex === null) return null;
+      return direction === 'next'
+        ? (prevIndex + 1) % filteredMedia.length
+        : (prevIndex - 1 + filteredMedia.length) % filteredMedia.length;
+    });
+  }, [filteredMedia.length]);
 
   useEffect(() => {
+    if (currentIndex === null) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedMedia) return;
       if (e.key === 'Escape') closeModal();
       if (e.key === 'ArrowRight') navigateModal('next');
       if (e.key === 'ArrowLeft') navigateModal('prev');
     };
 
+    // Global keyboard listener for modal navigation
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedMedia, currentIndex, filteredMedia]);
+  }, [currentIndex, closeModal, navigateModal]);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -268,7 +272,7 @@ const Gallery = () => {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.6, delay: idx * 0.03 }}
                   className="group relative aspect-square overflow-hidden border-r border-b border-border hover:bg-bg-light transition-colors cursor-zoom-in"
-                  onClick={() => openModal(item, idx)}
+                  onClick={() => openModal(idx)}
                 >
                   <div className="absolute top-6 left-6 z-20 font-serif text-[9px] tracking-[0.4em] text-accent opacity-0 group-hover:opacity-100 transition-all duration-500 transform -translate-y-2 group-hover:translate-y-0 uppercase font-medium">
                     {item.category} • {new Date(item.date).getFullYear()}
