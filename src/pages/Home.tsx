@@ -2,7 +2,14 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, BookOpen, Users, Trophy, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ShapeGrid from '../components/ShapeGrid';
+/**
+ * PERFORMANCE OPTIMIZATION: Removed unused ShapeGrid import.
+ *
+ * Why: ShapeGrid was imported but not used in the Home component.
+ *
+ * Impact: Slightly reduces bundle size and avoids unnecessary module
+ * initialization overhead during the Home page load.
+ */
 import DecryptedText from '../components/DecryptedText';
 
 const STATS = [
