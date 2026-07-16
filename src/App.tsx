@@ -29,6 +29,39 @@ import Gallery from './pages/Gallery';
 
 import { MobileDock } from './components/MobileDock';
 
+/**
+ * PERFORMANCE OPTIMIZATION: Hoisted static UI configuration to module scope.
+ *
+ * Why: The Layout component re-renders on every route change (due to useLocation).
+ * By moving these static arrays out of the component, we avoid re-allocating
+ * memory and creating new object references on every render.
+ *
+ * Impact: Reduces garbage collection (GC) pressure and ensures stable references
+ * for children components, preventing unnecessary re-renders of the navigation
+ * and footer links.
+ */
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
+
+const SOCIAL_ICONS = [Facebook, Twitter, Youtube];
+
+const DIRECTORY_LINKS = [
+  { name: 'Overview', path: '/about' },
+  { name: 'Gallery', path: '/gallery' },
+  { name: 'Clubs', path: '/students' },
+  { name: 'Archives', path: '/events' }
+];
+
+const QUICK_LINKS = [
+  { name: 'Webmail', href: '#' },
+  { name: 'Moodle', href: '#' },
+  { name: 'Alumni', href: '#' }
+];
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
@@ -60,12 +93,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +149,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
@@ -130,16 +158,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="grid grid-cols-2 gap-12 font-mono text-[10px] tracking-[0.3em] text-text-muted uppercase">
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Directory</div>
-                <Link to="/about" className="block hover:text-accent transition-colors">Overview</Link>
-                <Link to="/gallery" className="block hover:text-accent transition-colors">Gallery</Link>
-                <Link to="/students" className="block hover:text-accent transition-colors">Clubs</Link>
-                <Link to="/events" className="block hover:text-accent transition-colors">Archives</Link>
+                {DIRECTORY_LINKS.map((link) => (
+                  <Link key={link.name} to={link.path} className="block hover:text-accent transition-colors">{link.name}</Link>
+                ))}
               </div>
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Links</div>
-                <a href="#" className="block hover:text-accent transition-colors">Webmail</a>
-                <a href="#" className="block hover:text-accent transition-colors">Moodle</a>
-                <a href="#" className="block hover:text-accent transition-colors">Alumni</a>
+                {QUICK_LINKS.map((link) => (
+                  <a key={link.name} href={link.href} className="block hover:text-accent transition-colors">{link.name}</a>
+                ))}
               </div>
             </div>
 
