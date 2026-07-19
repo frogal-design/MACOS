@@ -20,14 +20,43 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
+// Primary landing page is loaded statically to preserve immediate initial paint performance.
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// PERFORMANCE OPTIMIZATION (Bolt): Route-based code splitting.
+// Secondary sub-pages are lazy-loaded via dynamic imports. This reduces the initial bundle size
+// of the main entry chunk, speeding up the Largest Contentful Paint (LCP) and initial page load.
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// PERFORMANCE OPTIMIZATION (Bolt): Static UI configuration arrays hoisted to module scope.
+// Hoisting these arrays prevents repeated object/array allocation on every single component render
+// of Layout/App, reducing garbage collection overhead and preventing unnecessary reference changes.
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
+
+const SOCIAL_ICONS = [Facebook, Twitter, Youtube];
+
+const DIRECTORY_LINKS = [
+  { label: 'Overview', path: '/about' },
+  { label: 'Gallery', path: '/gallery' },
+  { label: 'Clubs', path: '/students' },
+  { label: 'Archives', path: '/events' }
+];
+
+const QUICK_LINKS = [
+  { label: 'Webmail', path: '#' },
+  { label: 'Moodle', path: '#' },
+  { label: 'Alumni', path: '#' }
+];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +89,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +145,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
@@ -130,16 +154,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="grid grid-cols-2 gap-12 font-mono text-[10px] tracking-[0.3em] text-text-muted uppercase">
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Directory</div>
-                <Link to="/about" className="block hover:text-accent transition-colors">Overview</Link>
-                <Link to="/gallery" className="block hover:text-accent transition-colors">Gallery</Link>
-                <Link to="/students" className="block hover:text-accent transition-colors">Clubs</Link>
-                <Link to="/events" className="block hover:text-accent transition-colors">Archives</Link>
+                {DIRECTORY_LINKS.map((link) => (
+                  <Link key={link.label} to={link.path} className="block hover:text-accent transition-colors">
+                    {link.label}
+                  </Link>
+                ))}
               </div>
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Links</div>
-                <a href="#" className="block hover:text-accent transition-colors">Webmail</a>
-                <a href="#" className="block hover:text-accent transition-colors">Moodle</a>
-                <a href="#" className="block hover:text-accent transition-colors">Alumni</a>
+                {QUICK_LINKS.map((link) => (
+                  <a key={link.label} href={link.path} className="block hover:text-accent transition-colors">
+                    {link.label}
+                  </a>
+                ))}
               </div>
             </div>
 
@@ -173,15 +200,18 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        {/* React.Suspense fallback prevents layout shift during route transitions */}
+        <React.Suspense fallback={<div className="min-h-screen bg-bg" />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
