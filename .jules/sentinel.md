@@ -1,0 +1,4 @@
+## 2026-07-20 - [Supply Chain Surface Reduction & Direct Dependency Hardening]
+**Vulnerability:** Excess attack surface and high-severity CVEs in unneeded dependencies (`express` and `dotenv` and `@google/genai` in a static, serverless Vite frontend, plus older vulnerable versions of `react-router-dom` and `vite`).
+**Learning:** Legacy package declarations like `express` can introduce vulnerability noise and supply chain vulnerabilities even if they are not active in the client-side code. Upgrading active packages (like `react-router-dom` and `vite` to secure versions) and pruning completely unused artifacts drastically simplifies dependency trees and removes high-severity risks.
+**Prevention:** Regularly audit the codebase using `npm audit`, move purely developmental build-tools (like `vite`) to `devDependencies` to avoid production environments inheriting build tools, and strictly remove orphaned or unused packages.
