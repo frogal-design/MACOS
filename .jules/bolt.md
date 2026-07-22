@@ -5,3 +5,7 @@
 ## 2026-06-25 - [Static Data Hoisting & Memoization]
 **Learning:** Defining large data arrays or objects inside functional components causes re-allocation on every render, even if the data never changes. Hoisting these to module scope and using `useMemo` for derived data (like filtered lists) ensures stable references and reduces GC pressure.
 **Action:** Standardize on SCREAMING_SNAKE_CASE module-scope constants for static UI data and use `useMemo` for any transformation of that data based on component state.
+
+## 2026-07-20 - [Strategic Code Splitting & Dynamic Imports]
+**Learning:** While route-based code splitting reduces the main bundle size significantly, lazy-loading the landing page (`Home`) can degrade initial paint metrics (FCP/LCP) by adding a chunk request round-trip before first render. Statically importing the default lander while lazy-loading secondary pages yields optimal initial load speeds.
+**Action:** Always statically import the initial landing route and lazy-load secondary pages via `React.lazy` and `React.Suspense`.
