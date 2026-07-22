@@ -2,7 +2,6 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { ArrowRight, BookOpen, Users, Trophy, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import ShapeGrid from '../components/ShapeGrid';
 import DecryptedText from '../components/DecryptedText';
 
 const STATS = [
