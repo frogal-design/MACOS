@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -22,12 +22,22 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// Route-based code splitting for secondary pages to reduce initial bundle size
+const About = lazy(() => import('./pages/About'));
+const Students = lazy(() => import('./pages/Students'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoist static navigation links array to module scope to avoid re-allocation on every render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +70,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -173,15 +178,26 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <Suspense fallback={
+          <div className="min-h-[60vh] flex flex-col items-center justify-center">
+            <div className="font-serif text-[11px] tracking-[0.5em] text-accent uppercase font-medium mb-4 animate-pulse">
+              MACOS
+            </div>
+            <div className="font-serif text-[10px] tracking-[0.3em] text-text-muted uppercase italic">
+              Loading Chronicle...
+            </div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </Router>
   );
