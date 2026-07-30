@@ -1,0 +1,4 @@
+## 2026-07-30 - [Supply Chain Surface Reduction & Direct Dependency Hardening]
+**Vulnerability:** The application was exposed to multiple high-severity vulnerabilities (specifically CSRF/DoS in `react-router` and `react-router-dom`, as well as alternate path bypasses in `vite`). Furthermore, there was a risk of API key exposure in `vite.config.ts` via global define statements injecting sensitive environment variables into production assets.
+**Learning:** Legacy configuration files and unused packages (`express`, `dotenv`, `@google/genai`) expand the attack surface unnecessarily and introduce high-severity supply chain vulnerabilities without being used in client-facing applications.
+**Prevention:** Establish defensive design: remove all unused packages, pin-upgrade production and build dependencies (`react-router-dom` and `vite` to secured versions), and never inject sensitive env vars into frontend bundles unless explicitly and securely handled.
