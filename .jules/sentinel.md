@@ -1,0 +1,9 @@
+## 2026-07-31 - [Supply Chain Surface Reduction & Direct Dependency Hardening]
+**Vulnerability:** Unused high-risk server/API dependencies (`express`, `dotenv`, `@google/genai`) existed in a purely static/frontend Vite single-page application, needlessly enlarging the supply chain attack surface and adding transitively vulnerable libraries (such as older versions of `qs` and `protobufjs`). Additionally, outdated direct dependencies (`react-router-dom` and `vite`) suffered from moderate/high-severity vulnerabilities (e.g., RSC mode CSRF bypasses, Windows path traversal).
+**Learning:** Legacy development mockups or backend packages often linger as dead code, while standard upgrades to lockfiles sometimes skip major version bumps needed to remediate structural framework vulnerabilities. Standardizing the workspace on a clean frontend footprint is required to eliminate attack surfaces.
+**Prevention:** Strictly keep build tools like `vite` as `devDependencies`. Actively prune dead production packages from `package.json` that are not referenced in `src/`. Regularly upgrade core framework packages to security-hardened targets.
+
+## 2026-07-31 - [API Key Exposure via Build-Time Globals]
+**Vulnerability:** Specifying credentials or environment variables as build-time global definitions in Vite configurations (e.g., `define: { 'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY) }`) exposes those values globally across the final client bundle, risking key leakage.
+**Learning:** Developers sometimes use build-time injection thinking it stays local, but in frontend-only environments, global definitions are embedded directly into production bundles accessible to any user.
+**Prevention:** Do not hardcode or inject sensitive credentials into public client-side builds. If environment variables are used, rely on standard runtime configuration layers or gate them behind secure serverless/backend proxies.
