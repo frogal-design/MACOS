@@ -1,0 +1,4 @@
+## 2026-07-28 - Supply Chain Surface Reduction & Direct Dependency Hardening
+**Vulnerability:** Exposing API keys (`GEMINI_API_KEY`) globally via `vite.config.ts` definition block, combined with unneeded high-risk direct dependencies (`express`, `dotenv`, `@google/genai`) containing transitive vulnerabilities in the frontend SPA bundle.
+**Learning:** Merging older branches overrode previously applied security hardening, reverting package upgrades and re-exposing sensitive env variable definitions that were not active or needed in client-side components.
+**Prevention:** Keep the frontend SPA codebase pure by restricting direct dependencies to client-only libraries, purging global definitions of unused environment credentials, and validating package manifest integrity across branch merges with static verification checks.
