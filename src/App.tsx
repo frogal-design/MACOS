@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -22,12 +22,24 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// Route-based code splitting
+const About = lazy(() => import('./pages/About'));
+const Students = lazy(() => import('./pages/Students'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoisted static layout configurations to module scope to prevent re-allocation on render
+const DESKTOP_NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+] as const;
+
+const FOOTER_SOCIAL_ICONS = [Facebook, Twitter, Youtube] as const;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +72,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {DESKTOP_NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -103,9 +110,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </nav>
 
-      {/* Main Content */}
+      {/* Main Content with Suspense Loading Fallback */}
       <main className="flex-grow">
-        {children}
+        <Suspense fallback={
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
+          </div>
+        }>
+          {children}
+        </Suspense>
       </main>
 
       {/* Footer */}
@@ -121,7 +134,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {FOOTER_SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
