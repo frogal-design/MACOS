@@ -1,0 +1,4 @@
+## 2026-08-15 - [Credential Exposure and Vulnerable Dependency Regression]
+**Vulnerability:** Reintroduction of exposed global client-side credential configuration (`process.env.GEMINI_API_KEY` defined in `vite.config.ts`) and vulnerable packages (`react-router-dom` < 7.18.2 with high-severity CSRF/DoS risks) along with unnecessary bloated server-side packages (`express`, `dotenv`, and `@google/genai`).
+**Learning:** Merging older development branches or feature-level pull requests can silently overwrite hardened dependency manifests (`package.json`) and configuration profiles (`vite.config.ts`), causing critical security regressions if not audited.
+**Prevention:** Always perform a post-merge automated dependency and configuration audit. Implement lint rules, build-time secrets validation, and pin package.json with secure targets while completely removing unused packages from dependencies.
