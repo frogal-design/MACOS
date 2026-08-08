@@ -1,0 +1,4 @@
+## 2026-08-08 - [Credential Exposure via Global Define Block in Vite]
+**Vulnerability:** Global define injection of environment variables in Vite (`process.env.GEMINI_API_KEY`) exposes sensitive API keys/credentials directly in compiled frontend bundles or global scope.
+**Learning:** In frontend-only SPA architectures, global injection blocks in configuration files (`vite.config.ts`) copy the build-time environment secrets directly into public client-side bundles, even if those secrets are never referenced or used in the application code.
+**Prevention:** Never define or inject raw environment secrets into client-side global definitions. Rely strictly on Vite's native `import.meta.env` with `VITE_` prefixed public environment variables for public configuration, and keep private keys strictly on secure backends.
