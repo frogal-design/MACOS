@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -20,14 +20,25 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
+// Pages - Lazy loaded to split the production bundle and speed up initial page load
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+const About = lazy(() => import('./pages/About'));
+const Students = lazy(() => import('./pages/Students'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoist static navigation and layout configurations to module-scope
+// This avoids re-allocating arrays/objects on every component render pass.
+const DESKTOP_NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+] as const;
+
+const FOOTER_SOCIAL_ICONS = [Facebook, Twitter, Youtube] as const;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +71,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {DESKTOP_NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +127,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {FOOTER_SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
@@ -173,15 +179,21 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[60vh] font-serif text-sm tracking-[0.3em] uppercase italic opacity-60">
+            Loading...
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </Router>
   );
