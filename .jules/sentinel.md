@@ -1,0 +1,4 @@
+## 2026-08-10 - Supply Chain Surface Reduction & Direct Dependency Hardening
+**Vulnerability:** Global define injection of credential blocks (e.g., `GEMINI_API_KEY`) on the client bundle, combined with unused high-severity server-side packages (`express`, `@google/genai`, `dotenv`) in a frontend-only Vite application, presenting a credential leak risk and expanding the supply chain attack surface.
+**Learning:** Injecting secrets or configuration variables globally in `vite.config.ts` risks leaking sensitive keys to public static assets. Furthermore, keeping unused server-side packages in `package.json` increases the dependency bloat and exposes the application to unnecessary vulnerabilities.
+**Prevention:** Prune all unused packages regularly, keep core frontend libraries hardened to secure versions, and avoid global injection of backend credentials/secrets into the client-side build-time defines.
