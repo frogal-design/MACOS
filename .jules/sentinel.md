@@ -1,0 +1,4 @@
+## 2026-08-23 - [Client-Side Define Injection & Dependency Vulnerability Remediation]
+**Vulnerability:** Client-side config injects process.env.GEMINI_API_KEY globally into client code. High-severity vulnerabilities in react-router-dom and vite packages existed, alongside unused high-risk packages.
+**Learning:** Hardcoding or injecting secrets via client-side define block is insecure because any credentials included inside production scripts can easily be extracted by unauthorized users inspecting the static JS assets. In addition, keeping unused dev/dependencies in package.json exposes the application to supply chain attacks.
+**Prevention:** Remove global define injection blocks from bundlers, use Vite's built-in `import.meta.env` with `VITE_` prefixing when safe, and continuously audit dependencies while purging unused, stale packages to keep a minimal attack surface.
