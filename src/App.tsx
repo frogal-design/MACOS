@@ -22,12 +22,26 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// Lazy loaded routes for optimization (improves initial bundle size and LCP)
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Elegant loading fallback matching the school's aesthetic
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-[60vh] bg-bg">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-8 h-8 border-2 border-border border-t-accent rounded-full animate-spin" />
+      <span className="font-serif text-[10px] tracking-[0.3em] uppercase opacity-40 animate-pulse">
+        Loading...
+      </span>
+    </div>
+  </div>
+);
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -173,15 +187,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
