@@ -1,0 +1,4 @@
+## 2026-08-25 - Client-Side Credential Exposure & Unused Server Artifacts
+**Vulnerability:** Global define injection in `vite.config.ts` exposed `GEMINI_API_KEY` to client-side assets, while unused server-side packages (`express`, `@google/genai`, `dotenv`) bloated the supply chain attack surface and introduced high-severity transitive CVEs.
+**Learning:** In Vite single-page applications, global `define` declarations bake secrets into bundled JavaScript files visible to all users. Additionally, legacy server dependencies left in client-only projects unnecessarily increase security vulnerability exposure.
+**Prevention:** Never inject raw API keys via `define` blocks in Vite configuration files. Remove unused backend dependencies and upgrade client routing libraries (`react-router-dom@^7.18.2`) to secure versions.
