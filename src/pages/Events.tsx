@@ -15,6 +15,9 @@ const CALENDAR = [
   { date: "17", month: "APR", title: "PHYSICS TRIP TO JINJA", time: "7:00 AM", location: "Nalubaale Dam" },
 ];
 
+// Hoisted static array to module scope to prevent re-allocation on component re-renders
+const PORTAL_LINKS = ['Student Results', 'E-Learning', 'Staff Mail'] as const;
+
 const Events = () => {
   const navigate = useNavigate();
 
@@ -82,7 +85,7 @@ const Events = () => {
            <div className="bg-bg-light border border-border p-12">
               <h3 className="text-4xl font-serif mb-8 uppercase">Portals</h3>
               <div className="space-y-4 font-mono text-[10px] tracking-widest">
-                 {['Student Results', 'E-Learning', 'Staff Mail'].map((p) => (
+                 {PORTAL_LINKS.map((p) => (
                    <button key={p} className="w-full p-6 border border-border flex justify-between hover:border-accent hover:text-accent transition-all">
                       {p.toUpperCase()} <Download size={16} />
                    </button>
