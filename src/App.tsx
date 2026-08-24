@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -8,26 +8,34 @@ import {
 } from 'react-router-dom';
 import { 
   Phone, 
-  Mail, 
   MapPin, 
-  Menu, 
-  X, 
   Facebook, 
   Twitter, 
   Youtube, 
-  Search,
-  ExternalLink
+  Search
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
-// Pages
+// Eager load initial landing page
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// Lazy load non-initial route pages to optimize initial bundle size
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoisted static constants to prevent object/array re-allocations on re-render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+] as const;
+
+const SOCIAL_ICONS = [Facebook, Twitter, Youtube] as const;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +68,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +124,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
@@ -173,15 +176,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
