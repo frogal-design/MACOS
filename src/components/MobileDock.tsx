@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Info, Image, Users, Calendar, Search, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
@@ -11,7 +11,8 @@ const navItems = [
   { name: 'Events', path: '/events', icon: Calendar },
 ];
 
-export const MobileDock = () => {
+// Memoized to prevent unnecessary re-renders when parent Layout renders without prop/state changes.
+export const MobileDock = memo(() => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -91,4 +92,4 @@ export const MobileDock = () => {
       </motion.div>
     </div>
   );
-};
+});
