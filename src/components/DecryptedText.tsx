@@ -134,6 +134,13 @@ const DecryptedText = memo(({
   }, [text, shuffleText]);
 
   const triggerDecrypt = useCallback(() => {
+    // Respect reduced motion settings: skip animation loop and render final text immediately
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      return;
+    }
+
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -143,9 +150,18 @@ const DecryptedText = memo(({
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [sequential, computeOrder, text.length, text]);
 
   const triggerReverse = useCallback(() => {
+    // Respect reduced motion settings: skip animation loop and return to initial encrypted/hidden state immediately
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const emptySet = new Set<number>();
+      setRevealedIndices(emptySet);
+      setDisplayText(shuffleText(text, emptySet));
+      setIsDecrypted(false);
+      return;
+    }
+
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
