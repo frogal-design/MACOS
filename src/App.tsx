@@ -20,12 +20,14 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
+// Pages - Home is loaded statically for optimal initial paint speed
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+
+// Route-based code splitting for secondary pages to reduce initial JavaScript bundle size
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
 
@@ -173,15 +175,23 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={
+          <div className="min-h-screen flex items-center justify-center bg-bg">
+            <div className="font-serif text-[10px] tracking-[0.5em] text-accent uppercase opacity-60 animate-pulse">
+              LOADING...
+            </div>
+          </div>
+        }>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
