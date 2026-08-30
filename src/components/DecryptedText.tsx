@@ -359,17 +359,21 @@ const DecryptedText = memo(({
     setDirection('forward');
   }, [animateOn, text, encryptInstantly]);
 
-  const animateProps =
-    animateOn === 'hover' || animateOn === 'inViewHover'
-      ? {
-          onMouseEnter: triggerHoverDecrypt,
-          onMouseLeave: resetToPlainText
-        }
-      : animateOn === 'click'
-        ? {
-            onClick: handleClick
-          }
-        : {};
+  // Memoize event props object to prevent object reference re-creation during 50ms interval animation updates
+  const animateProps = useMemo(() => {
+    if (animateOn === 'hover' || animateOn === 'inViewHover') {
+      return {
+        onMouseEnter: triggerHoverDecrypt,
+        onMouseLeave: resetToPlainText
+      };
+    }
+    if (animateOn === 'click') {
+      return {
+        onClick: handleClick
+      };
+    }
+    return {};
+  }, [animateOn, triggerHoverDecrypt, resetToPlainText, handleClick]);
 
   return (
     <motion.span className={parentClassName} ref={containerRef} style={styles.wrapper} {...animateProps} {...props}>
