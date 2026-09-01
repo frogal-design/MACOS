@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -22,10 +22,11 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+// Performance optimization: Dynamic route-based code splitting for non-landing pages
+const About = lazy(() => import('./pages/About'));
+const Students = lazy(() => import('./pages/Students'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
 
@@ -105,7 +106,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main className="flex-grow">
-        {children}
+        <Suspense fallback={<div className="min-h-screen bg-bg" />}>
+          {children}
+        </Suspense>
       </main>
 
       {/* Footer */}
