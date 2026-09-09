@@ -134,6 +134,12 @@ const DecryptedText = memo(({
   }, [text, shuffleText]);
 
   const triggerDecrypt = useCallback(() => {
+    // Respect user's reduced-motion preference: immediately reveal text without running timers
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -143,9 +149,14 @@ const DecryptedText = memo(({
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [sequential, computeOrder, text, text.length]);
 
   const triggerReverse = useCallback(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
@@ -300,6 +311,12 @@ const DecryptedText = memo(({
 
   const triggerHoverDecrypt = useCallback(() => {
     if (isAnimating) return;
+
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      return;
+    }
 
     setRevealedIndices(new Set());
     setIsDecrypted(false);
