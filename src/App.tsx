@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { 
   BrowserRouter as Router, 
   Routes, 
@@ -8,34 +8,57 @@ import {
 } from 'react-router-dom';
 import { 
   Phone, 
-  Mail, 
   MapPin, 
-  Menu, 
-  X, 
   Facebook, 
   Twitter, 
   Youtube, 
-  Search,
-  ExternalLink
+  Search
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
-// Pages
+// Pages - Lazy loaded for code splitting
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+const About = lazy(() => import('./pages/About'));
+const Students = lazy(() => import('./pages/Students'));
+const Events = lazy(() => import('./pages/Events'));
+const Gallery = lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
+// Static UI Configuration hoisted to module scope to avoid re-allocation on render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+] as const;
 
-  // Scroll to top on route change
+const SOCIAL_ICONS = [Facebook, Twitter, Youtube] as const;
+
+const DIRECTORY_LINKS = [
+  { label: 'Overview', path: '/about' },
+  { label: 'Gallery', path: '/gallery' },
+  { label: 'Clubs', path: '/students' },
+  { label: 'Archives', path: '/events' }
+] as const;
+
+const QUICK_LINKS = [
+  { label: 'Webmail', href: '#' },
+  { label: 'Moodle', href: '#' },
+  { label: 'Alumni', href: '#' }
+] as const;
+
+// Standalone component to handle route-change scroll reset without causing Layout re-renders
+const ScrollToTop = () => {
+  const location = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+  return null;
+};
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -60,12 +83,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +139,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
@@ -130,16 +148,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="grid grid-cols-2 gap-12 font-mono text-[10px] tracking-[0.3em] text-text-muted uppercase">
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Directory</div>
-                <Link to="/about" className="block hover:text-accent transition-colors">Overview</Link>
-                <Link to="/gallery" className="block hover:text-accent transition-colors">Gallery</Link>
-                <Link to="/students" className="block hover:text-accent transition-colors">Clubs</Link>
-                <Link to="/events" className="block hover:text-accent transition-colors">Archives</Link>
+                {DIRECTORY_LINKS.map(link => (
+                  <Link key={link.path} to={link.path} className="block hover:text-accent transition-colors">{link.label}</Link>
+                ))}
               </div>
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Links</div>
-                <a href="#" className="block hover:text-accent transition-colors">Webmail</a>
-                <a href="#" className="block hover:text-accent transition-colors">Moodle</a>
-                <a href="#" className="block hover:text-accent transition-colors">Alumni</a>
+                {QUICK_LINKS.map(link => (
+                  <a key={link.label} href={link.href} className="block hover:text-accent transition-colors">{link.label}</a>
+                ))}
               </div>
             </div>
 
@@ -172,16 +189,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 export default function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <Suspense fallback={<div className="min-h-screen bg-bg flex items-center justify-center font-serif text-accent uppercase tracking-widest text-xs">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </Router>
   );
