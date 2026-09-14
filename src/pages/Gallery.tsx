@@ -271,7 +271,7 @@ const Gallery = () => {
                   onClick={() => openModal(item, idx)}
                 >
                   <div className="absolute top-6 left-6 z-20 font-serif text-[9px] tracking-[0.4em] text-accent opacity-0 group-hover:opacity-100 transition-all duration-500 transform -translate-y-2 group-hover:translate-y-0 uppercase font-medium">
-                    {item.category} • {new Date(item.date).getFullYear()}
+                    {item.category} • {item.date.slice(0, 4)}
                   </div>
                   
                   <img 
