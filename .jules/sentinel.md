@@ -1,0 +1,4 @@
+## 2026-09-20 - Client-Side Environment Variable Global Define Exposure
+**Vulnerability:** Client-side Vite configuration (`vite.config.ts`) included a global `define` mapping `process.env.GEMINI_API_KEY` to `loadEnv(mode, '.', '').GEMINI_API_KEY`, which bakes secret API keys into client-side production JavaScript bundles during `vite build`.
+**Learning:** In Vite projects, defining backend API keys or secrets in the global `define` block replaces occurrences across client code at build time, permanently exposing those credentials to end users inspecting static JS assets.
+**Prevention:** Avoid defining secret API keys in Vite's `define` config. Route API requests requiring sensitive keys through a server-side proxy or edge function, or use `import.meta.env.VITE_*` exclusively for public client-side variables.
