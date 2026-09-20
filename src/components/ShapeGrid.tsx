@@ -47,11 +47,24 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
 
+    let cachedGradient: CanvasGradient | null = null;
+
     const resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      // Cache radial gradient on resize to avoid recreating CanvasGradient on every 60fps frame
+      cachedGradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+      );
+      cachedGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -91,6 +104,9 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
 
     const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Hoist constant canvas styles outside per-cell loop to avoid redundant context updates
+      ctx.strokeStyle = borderColor;
+      ctx.fillStyle = hoverFillColor;
 
       if (isHex) {
         const colShift = Math.floor(gridOffset.current.x / hexHoriz);
@@ -110,13 +126,11 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawHex(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
 
             drawHex(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
             ctx.stroke();
           }
         }
@@ -141,13 +155,11 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawTriangle(cx, cy, squareSize, flip);
-              ctx.fillStyle = hoverFillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
 
             drawTriangle(cx, cy, squareSize, flip);
-            ctx.strokeStyle = borderColor;
             ctx.stroke();
           }
         }
@@ -168,13 +180,11 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             if (alpha) {
               ctx.globalAlpha = alpha;
               drawCircle(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
               ctx.fill();
               ctx.globalAlpha = 1;
             }
 
             drawCircle(cx, cy, squareSize);
-            ctx.strokeStyle = borderColor;
             ctx.stroke();
           }
         }
@@ -194,29 +204,19 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const alpha = cellOpacities.current.get(cellKey);
             if (alpha) {
               ctx.globalAlpha = alpha;
-              ctx.fillStyle = hoverFillColor;
               ctx.fillRect(sx, sy, squareSize, squareSize);
               ctx.globalAlpha = 1;
             }
 
-            ctx.strokeStyle = borderColor;
             ctx.strokeRect(sx, sy, squareSize, squareSize);
           }
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient) {
+        ctx.fillStyle = cachedGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {
