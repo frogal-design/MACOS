@@ -1,0 +1,4 @@
+## 2026-03-31 - Client-Side Environment Define Block Credential Leakage
+**Vulnerability:** `vite.config.ts` contained a `define` configuration block mapping `process.env.GEMINI_API_KEY` to `JSON.stringify(env.GEMINI_API_KEY)`, embedding server API keys directly into public client JS bundles during build time.
+**Learning:** Vite's `define` option replaces exact string matches in source code at compile time. In single-page applications or static web clients, replacing `process.env.*` with server env vars exposes credentials to anyone inspecting the built bundle.
+**Prevention:** Never use Vite `define` to expose private server secrets to client-side code. Use standard Vite `import.meta.env.VITE_*` conventions for public variables, and handle secret operations in dedicated backend proxies or serverless functions.
