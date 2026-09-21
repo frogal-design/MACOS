@@ -60,6 +60,7 @@ const DecryptedText = memo(({
   const orderRef = useRef<number[]>([]);
   const pointerRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const revealedIndicesRef = useRef<Set<number>>(new Set());
 
   const availableChars = useMemo(() => {
     return useOriginalCharsOnly
@@ -128,32 +129,49 @@ const DecryptedText = memo(({
 
   const encryptInstantly = useCallback(() => {
     const emptySet = new Set<number>();
+    revealedIndicesRef.current = emptySet;
     setRevealedIndices(emptySet);
     setDisplayText(shuffleText(text, emptySet));
     setIsDecrypted(false);
   }, [text, shuffleText]);
 
   const triggerDecrypt = useCallback(() => {
+    // Performance: Bypass animation if user prefers reduced motion
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
+
+    const emptySet = new Set<number>();
+    revealedIndicesRef.current = emptySet;
+    setRevealedIndices(emptySet);
+
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
-      setRevealedIndices(new Set());
-    } else {
-      setRevealedIndices(new Set());
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [sequential, computeOrder, text.length, text]);
 
   const triggerReverse = useCallback(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(false);
+      setIsAnimating(false);
+      return;
+    }
+
+    const fullSet = fillAllIndices();
+    revealedIndicesRef.current = fullSet;
+    setRevealedIndices(fullSet);
+    setDisplayText(shuffleText(text, fullSet));
+
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
-      setRevealedIndices(fillAllIndices());
-      setDisplayText(shuffleText(text, fillAllIndices()));
-    } else {
-      setRevealedIndices(fillAllIndices());
-      setDisplayText(shuffleText(text, fillAllIndices()));
     }
     setDirection('reverse');
     setIsAnimating(true);
@@ -191,74 +209,72 @@ const DecryptedText = memo(({
     };
 
     intervalRef.current = setInterval(() => {
-      setRevealedIndices(prevRevealed => {
-        if (sequential) {
-          if (direction === 'forward') {
-            if (prevRevealed.size < text.length) {
-              const nextIndex = getNextIndex(prevRevealed);
-              const newRevealed = new Set(prevRevealed);
-              newRevealed.add(nextIndex);
-              setDisplayText(shuffleText(text, newRevealed));
-              return newRevealed;
-            } else {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-              setIsAnimating(false);
-              setIsDecrypted(true);
-              return prevRevealed;
-            }
+      const prevRevealed = revealedIndicesRef.current;
+      if (sequential) {
+        if (direction === 'forward') {
+          if (prevRevealed.size < text.length) {
+            const nextIndex = getNextIndex(prevRevealed);
+            const newRevealed = new Set(prevRevealed);
+            newRevealed.add(nextIndex);
+            revealedIndicesRef.current = newRevealed;
+            setRevealedIndices(newRevealed);
+            setDisplayText(shuffleText(text, newRevealed));
+          } else {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setIsAnimating(false);
+            setIsDecrypted(true);
           }
-          if (direction === 'reverse') {
-            if (pointerRef.current < orderRef.current.length) {
-              const idxToRemove = orderRef.current[pointerRef.current++];
-              const newRevealed = new Set(prevRevealed);
-              newRevealed.delete(idxToRemove);
-              setDisplayText(shuffleText(text, newRevealed));
-              if (newRevealed.size === 0) {
-                if (intervalRef.current) clearInterval(intervalRef.current);
-                setIsAnimating(false);
-                setIsDecrypted(false);
-              }
-              return newRevealed;
-            } else {
+        } else if (direction === 'reverse') {
+          if (pointerRef.current < orderRef.current.length) {
+            const idxToRemove = orderRef.current[pointerRef.current++];
+            const newRevealed = new Set(prevRevealed);
+            newRevealed.delete(idxToRemove);
+            revealedIndicesRef.current = newRevealed;
+            setRevealedIndices(newRevealed);
+            setDisplayText(shuffleText(text, newRevealed));
+            if (newRevealed.size === 0) {
               if (intervalRef.current) clearInterval(intervalRef.current);
               setIsAnimating(false);
               setIsDecrypted(false);
-              return prevRevealed;
             }
-          }
-        } else {
-          if (direction === 'forward') {
-            setDisplayText(shuffleText(text, prevRevealed));
-            currentIteration++;
-            if (currentIteration >= maxIterations) {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-              setIsAnimating(false);
-              setDisplayText(text);
-              setIsDecrypted(true);
-            }
-            return prevRevealed;
-          }
-          if (direction === 'reverse') {
-            let currentSet = prevRevealed;
-            if (currentSet.size === 0) {
-              currentSet = fillAllIndices();
-            }
-            const removeCount = Math.max(1, Math.ceil(text.length / Math.max(1, maxIterations)));
-            const nextSet = removeRandomIndices(currentSet, removeCount);
-            setDisplayText(shuffleText(text, nextSet));
-            currentIteration++;
-            if (nextSet.size === 0 || currentIteration >= maxIterations) {
-              if (intervalRef.current) clearInterval(intervalRef.current);
-              setIsAnimating(false);
-              setIsDecrypted(false);
-              setDisplayText(shuffleText(text, new Set()));
-              return new Set();
-            }
-            return nextSet;
+          } else {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setIsAnimating(false);
+            setIsDecrypted(false);
           }
         }
-        return prevRevealed;
-      });
+      } else {
+        if (direction === 'forward') {
+          setDisplayText(shuffleText(text, prevRevealed));
+          currentIteration++;
+          if (currentIteration >= maxIterations) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setIsAnimating(false);
+            setDisplayText(text);
+            setIsDecrypted(true);
+          }
+        } else if (direction === 'reverse') {
+          let currentSet = prevRevealed;
+          if (currentSet.size === 0) {
+            currentSet = fillAllIndices();
+          }
+          const removeCount = Math.max(1, Math.ceil(text.length / Math.max(1, maxIterations)));
+          const nextSet = removeRandomIndices(currentSet, removeCount);
+          revealedIndicesRef.current = nextSet;
+          setRevealedIndices(nextSet);
+          setDisplayText(shuffleText(text, nextSet));
+          currentIteration++;
+          if (nextSet.size === 0 || currentIteration >= maxIterations) {
+            if (intervalRef.current) clearInterval(intervalRef.current);
+            setIsAnimating(false);
+            setIsDecrypted(false);
+            const emptySet = new Set<number>();
+            revealedIndicesRef.current = emptySet;
+            setRevealedIndices(emptySet);
+            setDisplayText(shuffleText(text, emptySet));
+          }
+        }
+      }
     }, speed);
 
     return () => {
@@ -301,7 +317,15 @@ const DecryptedText = memo(({
   const triggerHoverDecrypt = useCallback(() => {
     if (isAnimating) return;
 
-    setRevealedIndices(new Set());
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      return;
+    }
+
+    const emptySet = new Set<number>();
+    revealedIndicesRef.current = emptySet;
+    setRevealedIndices(emptySet);
     setIsDecrypted(false);
     setDisplayText(text);
     setDirection('forward');
@@ -311,7 +335,9 @@ const DecryptedText = memo(({
   const resetToPlainText = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setIsAnimating(false);
-    setRevealedIndices(new Set());
+    const emptySet = new Set<number>();
+    revealedIndicesRef.current = emptySet;
+    setRevealedIndices(emptySet);
     setDisplayText(text);
     setIsDecrypted(true);
     setDirection('forward');
