@@ -47,11 +47,29 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
 
+    // Cache the radial gradient object across 60 FPS animation frames
+    // to avoid per-frame allocations and garbage collection pressure
+    let cachedGradient: CanvasGradient | null = null;
+
     const resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      if (canvas.width > 0 && canvas.height > 0) {
+        cachedGradient = ctx.createRadialGradient(
+          canvas.width / 2,
+          canvas.height / 2,
+          0,
+          canvas.width / 2,
+          canvas.height / 2,
+          Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+        );
+        cachedGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      } else {
+        cachedGradient = null;
+      }
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -205,18 +223,10 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient) {
+        ctx.fillStyle = cachedGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {

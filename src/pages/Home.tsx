@@ -24,6 +24,7 @@ const Home = () => {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col items-center justify-center border-b border-border hermes-grid overflow-hidden">
+        <ShapeGrid className="absolute inset-0 opacity-20 pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
