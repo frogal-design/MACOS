@@ -134,6 +134,12 @@ const DecryptedText = memo(({
   }, [text, shuffleText]);
 
   const triggerDecrypt = useCallback(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -143,9 +149,15 @@ const DecryptedText = memo(({
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [sequential, computeOrder, text]);
 
   const triggerReverse = useCallback(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(false);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
@@ -300,6 +312,12 @@ const DecryptedText = memo(({
 
   const triggerHoverDecrypt = useCallback(() => {
     if (isAnimating) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
 
     setRevealedIndices(new Set());
     setIsDecrypted(false);
@@ -325,6 +343,9 @@ const DecryptedText = memo(({
         if (entry.isIntersecting && !hasAnimated) {
           triggerDecrypt();
           setHasAnimated(true);
+          if (containerRef.current) {
+            observer.unobserve(containerRef.current);
+          }
         }
       });
     };
