@@ -1,0 +1,4 @@
+## 2026-03-29 - Client-Side Define Block Credential Exposure Risk
+**Vulnerability:** `vite.config.ts` defined `'process.env.GEMINI_API_KEY'` via Vite's `define` configuration option, which substitutes build-time environment variables into global client bundle definitions.
+**Learning:** In Vite projects, using `define` to inject backend secret environment variables (e.g., `GEMINI_API_KEY`) exposes those keys in plain text within client-side production JavaScript bundles (`dist/assets/*.js`), making them accessible to end users via browser DevTools.
+**Prevention:** Never inject non-public backend API secrets into client-side Vite `define` blocks. If environment variables are needed on the frontend, use standard Vite `import.meta.env.VITE_*` public variables and ensure secrets are kept strictly server-side.
