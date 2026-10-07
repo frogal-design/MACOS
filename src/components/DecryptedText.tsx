@@ -61,6 +61,11 @@ const DecryptedText = memo(({
   const pointerRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const prefersReducedMotion = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    []
+  );
+
   const availableChars = useMemo(() => {
     return useOriginalCharsOnly
       ? Array.from(new Set(text.split(''))).filter(char => char !== ' ')
@@ -134,6 +139,13 @@ const DecryptedText = memo(({
   }, [text, shuffleText]);
 
   const triggerDecrypt = useCallback(() => {
+    // Respect reduced motion preference: skip interval timer & character shuffling
+    if (prefersReducedMotion) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -143,9 +155,16 @@ const DecryptedText = memo(({
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [prefersReducedMotion, sequential, computeOrder, text]);
 
   const triggerReverse = useCallback(() => {
+    // Respect reduced motion preference: skip interval timer & character shuffling
+    if (prefersReducedMotion) {
+      setDisplayText(text);
+      setIsDecrypted(false);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
@@ -157,7 +176,7 @@ const DecryptedText = memo(({
     }
     setDirection('reverse');
     setIsAnimating(true);
-  }, [sequential, computeOrder, fillAllIndices, shuffleText, text]);
+  }, [prefersReducedMotion, sequential, computeOrder, fillAllIndices, shuffleText, text]);
 
   useEffect(() => {
     if (!isAnimating) return;
@@ -300,13 +319,19 @@ const DecryptedText = memo(({
 
   const triggerHoverDecrypt = useCallback(() => {
     if (isAnimating) return;
+    // Respect reduced motion preference: skip animation on hover
+    if (prefersReducedMotion) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      return;
+    }
 
     setRevealedIndices(new Set());
     setIsDecrypted(false);
     setDisplayText(text);
     setDirection('forward');
     setIsAnimating(true);
-  }, [isAnimating, text]);
+  }, [isAnimating, prefersReducedMotion, text]);
 
   const resetToPlainText = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
