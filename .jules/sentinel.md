@@ -1,0 +1,4 @@
+## 2026-03-31 - Client-Side Environment Variable Exposure via Vite Define
+**Vulnerability:** `vite.config.ts` was configured with `define: { 'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY) }`. This causes Vite to replace occurrences or inject `GEMINI_API_KEY` into the client-side bundle at build time, exposing sensitive API keys to end users in public JavaScript bundles.
+**Learning:** `define` in Vite performs compile-time string replacements in client code. Defining secret environment variables inside `define` causes them to be permanently baked into public frontend JS assets.
+**Prevention:** Never map non-public or sensitive secret environment variables (e.g. `GEMINI_API_KEY`, private tokens) into Vite's `define` section or expose them under `VITE_` prefixes unless they are strictly public keys. Secrets should only be accessed server-side or via secure proxy endpoints.
