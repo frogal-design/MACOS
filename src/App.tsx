@@ -22,12 +22,13 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
-
 import { MobileDock } from './components/MobileDock';
+
+// Lazy-loaded page components for route-based code splitting
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -105,7 +106,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <main className="flex-grow">
-        {children}
+        <React.Suspense fallback={<div className="min-h-screen bg-bg" />}>
+          {children}
+        </React.Suspense>
       </main>
 
       {/* Footer */}
