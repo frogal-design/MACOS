@@ -1,0 +1,4 @@
+## 2026-03-31 - Client-Side Secret Exposure via Vite Global Define Block
+**Vulnerability:** Global replacement block in `vite.config.ts` (`define: { 'process.env.GEMINI_API_KEY': ... }`) injected secret environment variables into client-side production JavaScript assets during build.
+**Learning:** In single-page applications (SPAs) built with Vite, using `define` or `loadEnv` to replace `process.env` properties directly bakes ambient server-side environment variables into static JS bundles delivered publicly to web browsers.
+**Prevention:** Avoid defining server API secrets in Vite client `define` blocks. Server-side credentials should only be accessed in backend server endpoints or serverless functions, and client-side code should interact with backend proxies or only use public `VITE_` prefixed environment variables when strictly intended for public consumption.
