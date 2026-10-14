@@ -35,6 +35,8 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
   const hoveredSquare = useRef<GridCell | null>(null);
   const trailCells = useRef<GridCell[]>([]);
   const cellOpacities = useRef<Map<string, number>>(new Map());
+  // Performance optimization: Cache gradient across frames
+  const cachedGradient = useRef<CanvasGradient | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -52,6 +54,18 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      // Re-create cached radial gradient on resize rather than every animation frame
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+      );
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      cachedGradient.current = gradient;
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -105,14 +119,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * hexHoriz + offsetX;
             const cy = row * hexVert + ((col + colShift) % 2 !== 0 ? hexVert / 2 : 0) + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawHex(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Performance optimization: avoid string template allocation when cellOpacities is empty
+            if (cellOpacities.current.size > 0) {
+              const alpha = cellOpacities.current.get(`${col},${row}`);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawHex(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawHex(cx, cy, squareSize);
@@ -136,14 +152,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cy = row * squareSize + squareSize / 2 + offsetY;
             const flip = ((col + colShift + row + rowShift) % 2 + 2) % 2 !== 0;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawTriangle(cx, cy, squareSize, flip);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Performance optimization: avoid string template allocation when cellOpacities is empty
+            if (cellOpacities.current.size > 0) {
+              const alpha = cellOpacities.current.get(`${col},${row}`);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawTriangle(cx, cy, squareSize, flip);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawTriangle(cx, cy, squareSize, flip);
@@ -163,14 +181,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * squareSize + squareSize / 2 + offsetX;
             const cy = row * squareSize + squareSize / 2 + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawCircle(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Performance optimization: avoid string template allocation when cellOpacities is empty
+            if (cellOpacities.current.size > 0) {
+              const alpha = cellOpacities.current.get(`${col},${row}`);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawCircle(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawCircle(cx, cy, squareSize);
@@ -190,13 +210,15 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const sx = col * squareSize + offsetX;
             const sy = row * squareSize + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              ctx.fillStyle = hoverFillColor;
-              ctx.fillRect(sx, sy, squareSize, squareSize);
-              ctx.globalAlpha = 1;
+            // Performance optimization: avoid string template allocation when cellOpacities is empty
+            if (cellOpacities.current.size > 0) {
+              const alpha = cellOpacities.current.get(`${col},${row}`);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = hoverFillColor;
+                ctx.fillRect(sx, sy, squareSize, squareSize);
+                ctx.globalAlpha = 1;
+              }
             }
 
             ctx.strokeStyle = borderColor;
@@ -205,18 +227,10 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient.current) {
+        ctx.fillStyle = cachedGradient.current;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {
