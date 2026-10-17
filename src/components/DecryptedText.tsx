@@ -133,7 +133,17 @@ const DecryptedText = memo(({
     setIsDecrypted(false);
   }, [text, shuffleText]);
 
+  const isReducedMotion = useCallback(() => {
+    return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
+
   const triggerDecrypt = useCallback(() => {
+    if (isReducedMotion()) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length);
       pointerRef.current = 0;
@@ -143,9 +153,15 @@ const DecryptedText = memo(({
     }
     setDirection('forward');
     setIsAnimating(true);
-  }, [sequential, computeOrder, text.length]);
+  }, [isReducedMotion, text, sequential, computeOrder]);
 
   const triggerReverse = useCallback(() => {
+    if (isReducedMotion()) {
+      setDisplayText(text);
+      setIsDecrypted(true);
+      setIsAnimating(false);
+      return;
+    }
     if (sequential) {
       orderRef.current = computeOrder(text.length).slice().reverse();
       pointerRef.current = 0;
@@ -157,7 +173,7 @@ const DecryptedText = memo(({
     }
     setDirection('reverse');
     setIsAnimating(true);
-  }, [sequential, computeOrder, fillAllIndices, shuffleText, text]);
+  }, [isReducedMotion, sequential, computeOrder, fillAllIndices, shuffleText, text]);
 
   useEffect(() => {
     if (!isAnimating) return;
