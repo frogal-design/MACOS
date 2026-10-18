@@ -8,6 +8,10 @@ This contains everything you need to run your app locally.
 
 View your app in AI Studio: https://ai.studio/apps/afca57ef-c111-4720-8f98-042527880754
 
+## 🛡️ Security Notice
+
+AI Studio automatically injects sensitive secrets like `GEMINI_API_KEY` at runtime. These must **never** be bundled into the client-side code. Avoid using Vite's `define` property to inject these variables, as it will make them accessible to anyone viewing the application in a browser.
+
 ## Run Locally
 
 **Prerequisites:**  Node.js
