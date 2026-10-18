@@ -1,0 +1,4 @@
+## 2026-06-25 - [Secret Leakage via Vite Define]
+**Vulnerability:** The `vite.config.ts` was using the `define` property to globally replace `process.env.GEMINI_API_KEY` with the actual API key value during build time.
+**Learning:** This practice exposes sensitive credentials directly in the client-side JavaScript bundle, making them accessible to anyone via the browser's developer tools. Even if the variable is not explicitly used in the source code, some build tools or minifiers might still include it or it could be leaked through source maps.
+**Prevention:** Never use Vite's `define` or similar build-time replacement mechanisms for sensitive secrets. All API calls requiring secrets should be handled by a secure backend server or proxy. Use `import.meta.env.VITE_...` for non-sensitive public configuration only.
