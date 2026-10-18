@@ -47,11 +47,25 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
     const hexHoriz = squareSize * 1.5;
     const hexVert = squareSize * Math.sqrt(3);
 
+    // Cache radial gradient to prevent re-instantiation on every frame
+    let cachedGradient: CanvasGradient | null = null;
+
     const resizeCanvas = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      // Recompute cached radial gradient on canvas resize
+      cachedGradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+      );
+      cachedGradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -105,14 +119,17 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * hexHoriz + offsetX;
             const cy = row * hexVert + ((col + colShift) % 2 !== 0 ? hexVert / 2 : 0) + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawHex(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Fast path: skip template literal allocations & Map lookup when no cells are active
+            if (cellOpacities.current.size > 0) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawHex(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawHex(cx, cy, squareSize);
@@ -136,14 +153,17 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cy = row * squareSize + squareSize / 2 + offsetY;
             const flip = ((col + colShift + row + rowShift) % 2 + 2) % 2 !== 0;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawTriangle(cx, cy, squareSize, flip);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Fast path: skip template literal allocations & Map lookup when no cells are active
+            if (cellOpacities.current.size > 0) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawTriangle(cx, cy, squareSize, flip);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawTriangle(cx, cy, squareSize, flip);
@@ -163,14 +183,17 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * squareSize + squareSize / 2 + offsetX;
             const cy = row * squareSize + squareSize / 2 + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawCircle(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            // Fast path: skip template literal allocations & Map lookup when no cells are active
+            if (cellOpacities.current.size > 0) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawCircle(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawCircle(cx, cy, squareSize);
@@ -190,13 +213,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const sx = col * squareSize + offsetX;
             const sy = row * squareSize + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              ctx.fillStyle = hoverFillColor;
-              ctx.fillRect(sx, sy, squareSize, squareSize);
-              ctx.globalAlpha = 1;
+            // Fast path: skip template literal allocations & Map lookup when no cells are active
+            if (cellOpacities.current.size > 0) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = hoverFillColor;
+                ctx.fillRect(sx, sy, squareSize, squareSize);
+                ctx.globalAlpha = 1;
+              }
             }
 
             ctx.strokeStyle = borderColor;
@@ -205,18 +231,10 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (cachedGradient) {
+        ctx.fillStyle = cachedGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {
