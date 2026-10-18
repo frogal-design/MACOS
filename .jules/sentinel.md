@@ -1,0 +1,4 @@
+## 2026-06-25 - Hardcoded API Key Exposure via Vite Define
+**Vulnerability:** The `vite.config.ts` was using `define` to globally replace `process.env.GEMINI_API_KEY` with its literal value from the environment. This bundles the secret directly into the client-side JavaScript, making it accessible to anyone viewing the site.
+**Learning:** Vite's `define` property is a powerful search-and-replace tool during build time. Even if a variable isn't explicitly used in the source code, `define` can still leak information if it targets common patterns or if future code changes introduce references to the defined keys.
+**Prevention:** Avoid using `define` for sensitive secrets. Use `VITE_` prefixed environment variables which are intentionally exposed via `import.meta.env`, or preferably, handle sensitive logic on a secure backend. If dependencies are unused artifacts, they should be removed to reduce the attack surface.
