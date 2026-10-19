@@ -20,14 +20,35 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
+// Pages - Home is eagerly loaded for immediate paint; secondary pages are code-split
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoisted static navigation data constants to avoid object re-allocations on render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
+
+const DIRECTORY_LINKS = [
+  { name: 'Overview', path: '/about' },
+  { name: 'Gallery', path: '/gallery' },
+  { name: 'Clubs', path: '/students' },
+  { name: 'Archives', path: '/events' }
+];
+
+const QUICK_LINKS = [
+  { name: 'Webmail', href: '#' },
+  { name: 'Moodle', href: '#' },
+  { name: 'Alumni', href: '#' }
+];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +81,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -130,16 +146,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="grid grid-cols-2 gap-12 font-mono text-[10px] tracking-[0.3em] text-text-muted uppercase">
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Directory</div>
-                <Link to="/about" className="block hover:text-accent transition-colors">Overview</Link>
-                <Link to="/gallery" className="block hover:text-accent transition-colors">Gallery</Link>
-                <Link to="/students" className="block hover:text-accent transition-colors">Clubs</Link>
-                <Link to="/events" className="block hover:text-accent transition-colors">Archives</Link>
+                {DIRECTORY_LINKS.map((item) => (
+                  <Link key={item.name} to={item.path} className="block hover:text-accent transition-colors">{item.name}</Link>
+                ))}
               </div>
               <div className="space-y-4">
                 <div className="text-text-main mb-6">Links</div>
-                <a href="#" className="block hover:text-accent transition-colors">Webmail</a>
-                <a href="#" className="block hover:text-accent transition-colors">Moodle</a>
-                <a href="#" className="block hover:text-accent transition-colors">Alumni</a>
+                {QUICK_LINKS.map((item) => (
+                  <a key={item.name} href={item.href} className="block hover:text-accent transition-colors">{item.name}</a>
+                ))}
               </div>
             </div>
 
@@ -173,15 +188,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={<div className="min-h-screen bg-bg" />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
