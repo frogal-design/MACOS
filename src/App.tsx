@@ -22,12 +22,20 @@ import { motion, AnimatePresence } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoisted static navigation links to prevent re-allocation on render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +68,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -173,15 +176,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={<div className="min-h-[50vh] flex items-center justify-center font-mono text-xs text-text-muted uppercase">Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
