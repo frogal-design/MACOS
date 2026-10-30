@@ -36,6 +36,9 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
   const trailCells = useRef<GridCell[]>([]);
   const cellOpacities = useRef<Map<string, number>>(new Map());
 
+  // Cache CanvasGradient to avoid per-frame instantiation during 60 FPS animation loop
+  const gradientRef = useRef<CanvasGradient | null>(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -52,6 +55,18 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
       canvas.height = canvas.offsetHeight;
       numSquaresX.current = Math.ceil(canvas.width / squareSize) + 1;
       numSquaresY.current = Math.ceil(canvas.height / squareSize) + 1;
+
+      // Instantiate and cache radial gradient only when canvas resizes
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2,
+        canvas.height / 2,
+        0,
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
+      );
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      gradientRef.current = gradient;
     };
 
     window.addEventListener('resize', resizeCanvas);
@@ -91,6 +106,8 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
 
     const drawGrid = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Check once per frame if any cells have active opacity values to avoid 1500+ string allocations per frame when idle
+      const hasOpacities = cellOpacities.current.size > 0;
 
       if (isHex) {
         const colShift = Math.floor(gridOffset.current.x / hexHoriz);
@@ -105,14 +122,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * hexHoriz + offsetX;
             const cy = row * hexVert + ((col + colShift) % 2 !== 0 ? hexVert / 2 : 0) + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawHex(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            if (hasOpacities) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawHex(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawHex(cx, cy, squareSize);
@@ -136,14 +155,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cy = row * squareSize + squareSize / 2 + offsetY;
             const flip = ((col + colShift + row + rowShift) % 2 + 2) % 2 !== 0;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawTriangle(cx, cy, squareSize, flip);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            if (hasOpacities) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawTriangle(cx, cy, squareSize, flip);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawTriangle(cx, cy, squareSize, flip);
@@ -163,14 +184,16 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const cx = col * squareSize + squareSize / 2 + offsetX;
             const cy = row * squareSize + squareSize / 2 + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              drawCircle(cx, cy, squareSize);
-              ctx.fillStyle = hoverFillColor;
-              ctx.fill();
-              ctx.globalAlpha = 1;
+            if (hasOpacities) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                drawCircle(cx, cy, squareSize);
+                ctx.fillStyle = hoverFillColor;
+                ctx.fill();
+                ctx.globalAlpha = 1;
+              }
             }
 
             drawCircle(cx, cy, squareSize);
@@ -190,13 +213,15 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
             const sx = col * squareSize + offsetX;
             const sy = row * squareSize + offsetY;
 
-            const cellKey = `${col},${row}`;
-            const alpha = cellOpacities.current.get(cellKey);
-            if (alpha) {
-              ctx.globalAlpha = alpha;
-              ctx.fillStyle = hoverFillColor;
-              ctx.fillRect(sx, sy, squareSize, squareSize);
-              ctx.globalAlpha = 1;
+            if (hasOpacities) {
+              const cellKey = `${col},${row}`;
+              const alpha = cellOpacities.current.get(cellKey);
+              if (alpha) {
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = hoverFillColor;
+                ctx.fillRect(sx, sy, squareSize, squareSize);
+                ctx.globalAlpha = 1;
+              }
             }
 
             ctx.strokeStyle = borderColor;
@@ -205,18 +230,10 @@ const ShapeGrid: React.FC<ShapeGridProps> = ({
         }
       }
 
-      const gradient = ctx.createRadialGradient(
-        canvas.width / 2,
-        canvas.height / 2,
-        0,
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.sqrt(canvas.width ** 2 + canvas.height ** 2) / 2
-      );
-      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (gradientRef.current) {
+        ctx.fillStyle = gradientRef.current;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
     };
 
     const updateAnimation = () => {
