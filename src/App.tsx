@@ -8,17 +8,13 @@ import {
 } from 'react-router-dom';
 import { 
   Phone, 
-  Mail, 
   MapPin, 
-  Menu, 
-  X, 
   Facebook, 
   Twitter, 
   Youtube, 
-  Search,
-  ExternalLink
+  Search
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 // Pages
 import Home from './pages/Home';
@@ -28,6 +24,17 @@ import Events from './pages/Events';
 import Gallery from './pages/Gallery';
 
 import { MobileDock } from './components/MobileDock';
+
+// Hoisted static navigation data to avoid re-allocating array/objects on every render
+const NAV_ITEMS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+] as const;
+
+// Hoisted static social icons list to maintain stable reference and avoid per-render array allocation
+const SOCIAL_ICONS = [Facebook, Twitter, Youtube] as const;
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +67,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_ITEMS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -121,7 +123,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 “Be known by works.” A community of excellence, innovation, and character building on Makerere Hill.
               </p>
               <div className="flex gap-6">
-                {[Facebook, Twitter, Youtube].map((Icon, idx) => (
+                {SOCIAL_ICONS.map((Icon, idx) => (
                    <Icon key={idx} size={18} className="text-text-muted hover:text-accent cursor-pointer transition-colors" />
                 ))}
               </div>
