@@ -1,0 +1,4 @@
+## 2026-07-14 - [CRITICAL] Client-side Secret Injection via Vite Define Block
+**Vulnerability:** `vite.config.ts` used `define: { 'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY) }`, which bakes secret environment variables directly into client-side JS bundles during production builds.
+**Learning:** In Vite-based single-page applications, anything injected via `define` or prefixed with `VITE_` becomes readable by end users in browser assets. Even if not currently called in components, this creates an active risk of credential leakage whenever a build occurs with secrets in the environment.
+**Prevention:** Avoid injecting server-only API keys or credentials into Vite configuration `define` blocks. Keep secrets on server backends or edge functions, proxying sensitive third-party requests.
