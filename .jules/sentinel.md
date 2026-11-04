@@ -1,0 +1,4 @@
+## 2026-07-15 - [Vite Define Block Secret Exposure]
+**Vulnerability:** `vite.config.ts` used `define: { 'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY) }` which exposes server/build-time environment variables directly to the public client-side JavaScript bundle if referenced or during static build substitution.
+**Learning:** In Vite applications, global `define` blocks replace matching tokens with literal values in client artifacts. If a secret environment variable is defined in this block, any code accessing `process.env.GEMINI_API_KEY` will have the secret embedded in plaintext in production assets.
+**Prevention:** Never map server/API secrets into the Vite `define` config for client-side builds. Keep secrets exclusively on secure backends and interact with third-party APIs via authenticated server endpoints.
