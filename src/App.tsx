@@ -20,14 +20,22 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+// Pages code-split via React.lazy to defer non-critical route chunks from the initial bundle
+const Home = React.lazy(() => import('./pages/Home'));
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
+
+// Static nav items hoisted to module scope to avoid re-allocation on every render
+const NAV_LINKS = [
+  { name: 'ABOUT', path: '/about' },
+  { name: 'PORTAL', path: '/students' },
+  { name: 'CHRONICLE', path: '/events' },
+  { name: 'GALLERY', path: '/gallery' }
+];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
@@ -60,12 +68,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           {/* Desktop Nav Grid */}
           <div className="hidden lg:flex flex-grow">
-            {[
-              { name: 'ABOUT', path: '/about' },
-              { name: 'PORTAL', path: '/students' },
-              { name: 'CHRONICLE', path: '/events' },
-              { name: 'GALLERY', path: '/gallery' }
-            ].map((link) => {
+            {NAV_LINKS.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <Link 
@@ -173,15 +176,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
