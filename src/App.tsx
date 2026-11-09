@@ -20,12 +20,13 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Pages
-import Home from './pages/Home';
-import About from './pages/About';
-import Students from './pages/Students';
-import Events from './pages/Events';
-import Gallery from './pages/Gallery';
+// Route Optimization: Code-split page components to defer loading non-critical page assets
+// until navigated to, reducing initial bundle size and improving First Contentful Paint.
+const Home = React.lazy(() => import('./pages/Home'));
+const About = React.lazy(() => import('./pages/About'));
+const Students = React.lazy(() => import('./pages/Students'));
+const Events = React.lazy(() => import('./pages/Events'));
+const Gallery = React.lazy(() => import('./pages/Gallery'));
 
 import { MobileDock } from './components/MobileDock';
 
@@ -173,15 +174,17 @@ export default function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-          <Route path="/students" element={<Students />} />
-          <Route path="/events" element={<Events />} />
-          {/* Fallback */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <React.Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/students" element={<Students />} />
+            <Route path="/events" element={<Events />} />
+            {/* Fallback */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </React.Suspense>
       </Layout>
     </Router>
   );
